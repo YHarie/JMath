@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>根号をふくむ式の計算</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: sans-serif;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: row;
+      height: 100vh;
+    }
+
+    #left-area, #right-area {
+      padding: 1em;
+      box-sizing: border-box;
+      overflow: auto;
+    }
+
+    #left-area {
+      flex: 1;
+      background-color: #f9f9f9;
+      font-size: 1em;
+
+    }
+
+    #right-area {
+      flex: 1;
+      background-color: #222;
+      color: white;
+    }
+         body{font-size:1.3em;}
+    @media (orientation: portrait) {
+      .container {
+        flex-direction: column;
+      }
+
+      #left-area, #right-area {
+        height: 50vh;
+      }
+
+
+    body {
+    font-size: 2em;
+  }
+
+   select, button {
+    font-size: 1.5em;
+  }
+}
+
+    .correct { color: green; }
+    .incorrect { color: red; }
+
+    #blackboard {
+      width: 100%;
+      height: auto;
+      max-height: 80vh;
+      touch-action: none;
+    }
+label {
+    font-size: 1.5rem;
+  }
+  select {
+    font-size: 1.4rem;
+    margin: 0 0.5em;
+  }
+  </style>
+  <script>
+    function getRandomInt(min, max, excludeZero = false) {
+      let v;
+      do {
+        v = Math.floor(Math.random() * (max - min + 1)) + min;
+      } while (excludeZero && v === 0);
+      return v;
+    }
+//インフラ関数下から。
+function insu(a, b, c) {//因数定理を利用した因数分解。3次式
+  for (let l = -10; l <= 10; l++) {
+    const value = a * l * l + b * l + c;
+    if (value === 0) {
+      return -l; // 最初に見つけた解を返して終了
+    }
+  }
+  return null; // 該当する値がない場合
+}
+
+
+
+    function gcd(a, b) {//最大公約数
+      return b === 0 ? Math.abs(a) : gcd(b, a % b);
+    }
+	function lcm(a, b) {//最小公倍数
+	  if (a === 0 || b === 0) return 0; // どちらかが0のときは0
+	  return Math.abs(a * b) / gcd(a, b);
+	}
+
+    function moji(b, variable = "") {//途中の項。プラス，マイナスもつける。
+      if (b === 0) return "";
+      if (b === 1) return `+${variable}`;
+      if (b === -1) return `-${variable}`;
+      return `${b > 0 ? "+" : ""}${b}${variable}`;
+    }
+
+    function keisu(b, variable = "") {//係数。1，-1のとき省略できるようにする。
+      if (b === 0) return "";
+      if (b === 1) return `${variable}`;
+      if (b === -1) return `-${variable}`;
+      return `${b}${variable}`;
+    }
+  function teisu(b, variable = "") {//定数項
+      if (b === 0) return "";
+     return `${b > 0 ? "+" : ""}${b}${variable}`;
+    }
+
+function kakko(n) {//負の数にカッコをつける
+  return n < 0 ? `(${n})` : `${n}`;
+}
+function kanyaku(n,j) {//ルートの簡約化 j=1の時は文字列，j=2の時は配列で数値を返す。[外，中]
+  if (n < 0) return `i√${-n}`; // 負の数は虚数
+  if (n === 0) return "0";
+  if (n === 1) return "1";
+
+  let outside = 1;
+  let inside = n;
+
+  for (let i = 2; i * i <= inside; i++) {
+    while (inside % (i * i) === 0) {
+      inside /= i * i;
+      outside *= i;
+    }
+  }
+if(j===1){
+ if (inside === 1) return `${outside}`;
+if (outside === 1) return `\\sqrt{${inside}}`;
+
+return `${outside}\\sqrt{${inside}}`;}
+if(j===2){
+return [outside,inside];
+
+}
+}
+
+function bunsu(s, b) {//分数表記してくれる。分母が1のときは自動的に分子だけ返す。yakubunしてから使うといいかも。
+[s,b]=yakubun(s,b);
+  if (b === 1) { return `${s}`; }
+  if (b === -1) { return `${-s}`; }
+  return s < 0 ? `-\\frac{${-s}}{${b}}` : `\\frac{${s}}{${b}}`;
+}
+
+
+function yakubun(numerator, denominator) {//約分関数。[a,b]=yakubun(a,b)のように使う。
+  if (denominator === 0) {
+    throw new Error("分母が0です");
+  }
+
+  const divisor = gcd(Math.abs(numerator), Math.abs(denominator));
+  numerator = numerator/divisor;
+  denominator = denominator/divisor;
+
+  // 分母を正にする
+  if (denominator < 0) {
+    numerator = -numerator;
+    denominator = -denominator;
+  }
+
+  return [numerator, denominator];
+}
+//インフラ関数ここまで
+//円の方程式用関数
+function tenkai(a,b)//(ax+b)^2の展開したときの係数を返す。
+{
+return [a*a,2*a*b,b*b];//次数順に係数を返す。
+
+}
+
+function Cmake(a,b,r)//(a,b)を中心とする半径√rの円の一般刑を返す。rの値に注意。
+{
+return  `x^{2}+y^{2}${moji(-2*a,`x`)}${moji(-2*b,`y`)}${teisu(a*a+b*b-r)}=0`;
+
+}
+
+
+function distance(a,b,c,x,y){//点と直線の距離
+let p,q,m,n,r;
+p=Math.abs(a*x+b*y+c);
+[m,n]=kanyaku(a*a+b*b,2);//2は数字配列[外，中]
+q=m*n;
+[p,q]=yakubun(p,q);
+r=kanyaku(n,1);//文字列を返す。
+let answer= n===1 ? `${bunsu(p,q)}`: q===1 ? `${keisu(p)}${r}`: `\\frac{${keisu(p)}${r}}{${q}}`;
+return answer;
+}
+
+function generateQuiz() {//問題生成関数
+  document.getElementById('feedback').textContent = '';
+  document.getElementById('solution').textContent = '';
+  let i = parseInt(document.getElementById('modeSelect1').value);
+
+ if ( i === 0) i = getRandomInt(3, 6);//1～4です。
+  let question = '', answer = 0, solution = '';
+function root(a){
+  return `\\sqrt{${a}}`;
+}
+let a,b,c,shiki;
+if(i===1){
+  let j=getRandomInt(1,4);
+  if(j===1){
+  c=[2,3,5,6,7,10,11];
+  do{a=c[getRandomInt(0,6)];
+    b=c[getRandomInt(0,6)];
+  }while(gcd(a,b)>1)
+  shiki=`${root(a)}\\times${root(b)}`;
+  answer=root(a*b);
+  solution=`$$ ${shiki}=${root(`${a}\\times${b}`)}=${answer} $$`;
+}
+if(j===2){
+  c=[4,6,9,8,10,12];
+  let d=[2,2, 2,3, 3,3, 2,2, 2,5, 3,6];
+  let p=getRandomInt(0,5);
+  answer=c[p];
+  a=d[p*2+getRandomInt(0,1)];
+  b=c[p]**2/a;
+  shiki=`${root(a)}\\times${root(b)}`;
+  solution=`$$ ${shiki}=${root(`${a}\\times${b}`)}=${root(a*b)}=${answer} $$`;
+}
+if(j===3){
+  c=[2,3,5,6,7,10,11];
+  do{a=c[getRandomInt(0,6)];
+    b=c[getRandomInt(0,6)];
+  }while(gcd(a,b)>1)
+  let p=getRandomInt(0,1);
+  shiki=p===0 ? `${root(a*b)}\\div${root(b)}`:`\\frac{${root(a*b)}}{${root(b)}}`;
+  answer=root(a);
+  solution=`$$ ${shiki}=${p===0 ?root(`${a*b}\\div${b}`):root(`\\frac{${a*b}}{${b}}`)}=${answer} $$`;
+}
+if(j===4){
+  c=[2,3,5,6,7,10,11];
+  b=c[getRandomInt(0,5)];
+  a=getRandomInt(2,7)**2*b;
+  answer=kanyaku(a/b,1);
+  let p=getRandomInt(0,1);
+  shiki=p===0 ? `${root(a)}\\div${root(b)}`:`\\frac{${root(a)}}{${root(b)}}`;
+  solution=`$$ ${shiki}=${p===0 ?root(`${a}\\div${b}`):root(`\\frac{${a}}{${b}}`)}=${root(a/b)}=${answer} $$`;
+}
+
+question=`$$ ${shiki}を計算しなさい。 $$`;
+}
+if(i===2){
+  let j=getRandomInt(1,13)
+  if(j===1){
+      a=getRandomInt(2,6);
+      do{b=getRandomInt(2,7)}while(b===4)
+      shiki=root(a**2*b);
+    answer=kanyaku(a**2*b,1);
+    question=`$$ ${answer}を${root(`a`)} の形で表しなさい。$$`;
+    solution=`$$ ${answer}=${root(`${a}^2`)}\\times ${root(` ${b}`)}=${root(`${a}^2 \\times ${b}`)}=${shiki} $$`;
+  }
+  if(j<=5 && j>=2){
+      a=getRandomInt(2,6);
+      do{b=getRandomInt(2,7)}while(b===4)
+      shiki=root(a**2*b);
+    answer=kanyaku(a**2*b,1);
+    question=`$$ ${shiki}をa${root(`b`)} の形で表しなさい。$$`;
+    solution=`$$ ${shiki}=${root(`${a}^2 \\times ${b}`)}=${answer} $$`;
+  }
+  if(j>=6 && j<=9){
+      a=getRandomInt(2,9);
+      do{b=getRandomInt(2,7)}while(gcd(a,b)>1 || b===4)
+      shiki=root(bunsu(b,a**2));
+    answer=`\\frac{${root(b)}}{${a}}`;
+    question=`$$ ${shiki}を\\frac{${root(`b`)}}{a} の形で表しなさい。$$`;
+    solution=`$$ ${shiki}=\\frac{${root(b)}}{${root(a**2)}}=${answer} $$`;
+  }
+  if(j<=13 && j>=10){
+    c=[2,3,5,6,7,11,13,15];
+    a=c[getRandomInt(0,7)];
+    b=getRandomInt(1,2)*2;
+    shiki=root(a/(10**b));
+    answer=`\\frac{${root(a)}}{${kanyaku(10**b,1)}}`;
+   question=`$$ ${shiki}を\\frac{${root(`b`)}}{a} の形で表しなさい。$$`;
+    solution=`$$ ${shiki}=${root( `\\frac{${a}}{${10**b}}` )}$$
+    $$　　　=\\frac{${root(a)}} {${root(10**b)}}$$
+    $$　　　=${answer} $$`; 
+  }
+}
+if(i===3){
+  let p=[2,3,5,7];
+a=p[getRandomInt(0,1)]
+  do{b=getRandomInt(2,6); }while(a===b)
+  do{c=p[getRandomInt(0,3)];}while(c===a || c===b)
+  let n,m,j;
+  j=getRandomInt(1,3);
+  if(j===1){
+    n=a**3;
+    m=b**3  } 
+  if(j===2){
+    n=a*b;
+    m=b*c;  }
+  if(j===3){
+    n=a**2*b;
+    m=c*b;
+  }
+  shiki=`${root(n)}\\times ${root(m)}`;
+  answer=kanyaku(n*m,1);
+  question=`$$ ${shiki}を計算しなさい。 $$`;
+  solution=`$$ ${shiki}=${answer} $$`;
+}
+if(i===4){
+  let p=[2,3,5,7];
+  let j=getRandomInt(1,5);
+  if(j===1){
+    a=p[getRandomInt(0,3)];
+    do{b=p[getRandomInt(0,3)]*p[getRandomInt(0,3)]}while(gcd(a,b)>1)
+    shiki=`\\frac {${kanyaku(b,1)} } {${kanyaku(a,1)}} `;
+    answer=`\\frac {${kanyaku(a*b,1)} }{${a}} `;
+    solution=`$$ ${shiki}=\\frac{ ${kanyaku(b,1)} \\times ${kanyaku(a,1)} }{ ${kanyaku(a,1)} \\times ${kanyaku(a,1)} }=${answer} $$`;
+  }
+  if(j===2){
+     a=p[getRandomInt(0,3)];
+     do{c=p[getRandomInt(0,3)]}while(a===c)
+     b=getRandomInt(1,6);
+     shiki=`\\frac{${b*c}} {${root(a*c)}} `;
+     let m=yakubun(a,b);
+     answer=m[0]===1?`${keisu(m[1])}${root(a*c)}`:`\\frac{${keisu(m[1])}${root(a*c)}} {${m[0]}} `;
+     solution=`$$ ${shiki}= \\frac{${b*c}\\times${root(a*c)} } {${root(a*c)}\\times${root(a*c)}}=\\frac{${b*c}${root(a*c)}} {${a*c}} =${answer} $$`;
+  }
+  if(j===3){
+    a=p[getRandomInt(0,3)];
+     c=p[getRandomInt(0,1)];
+     b=getRandomInt(1,12);
+    shiki=` \\frac{${b}} {${root(a*c**2)}} `;
+    let m=yakubun(b,a*c);
+    answer= m[1]===1 ?`${keisu(m[0])}${root(a)}` :` \\frac{${keisu(m[0])}${root(a)}}{${m[1]}} `;
+    solution=`$$ ${shiki}=\\frac{${b}} {${kanyaku(a*c**2,1)}}=\\frac{${b}\\times${root(a)}} {${c}${root(a)}\\times${root(a)}}
+    =\\frac{${keisu(b)}${root(a)}} {${a*c}} ${b===m[0]?``:` =${answer}` }$$`;
+  }
+  question=`$$ ${shiki}の分母を有理化しなさい。 $$ `;
+  if(j===4){
+    a=p[getRandomInt(0,3)];
+    do{b=p[getRandomInt(0,3)]*p[getRandomInt(0,3)]}while(gcd(a,b)>1)
+    shiki=`\\frac {${kanyaku(b,1)} } {${kanyaku(a,1)}} `;
+    answer=`\\frac {${kanyaku(a*b,1)} }{${a}} `;
+    solution=`$$ ${root(b)}\\div${root(a)}=${shiki}=\\frac{ ${kanyaku(b,1)} \\times ${kanyaku(a,1)} }{ ${kanyaku(a,1)} \\times ${kanyaku(a,1)} }=${answer} $$`;
+    question=`$$ ${root(b)}\\div${root(a)} を計算しなさい。$$`;
+  }
+  if(j===5){
+    
+     a=p[getRandomInt(0,3)];
+     do{c=p[getRandomInt(0,1)]}while(a===c)
+     b=getRandomInt(1,6);
+     shiki=`\\frac{${root(b*c)}} {${root(a*c**2)}} `;
+     let m=yakubun(a*c,b);
+     question=`$$ ${root(b*c)}\\div${root(a*c**2)} を計算しなさい。$$`;
+     answer=m[0]===1?`${kanyaku(m[1],1)}`:`\\frac{${kanyaku(m[0]*m[1],1)}} {${m[0]}} `;
+     solution=`$$  ${root(b*c)}\\div${root(a*c**2)}$$$$ =${shiki}$$$$= \\frac{${kanyaku(m[1],1)}} {${kanyaku(m[0],1)}} 
+     ${m[0]===1 ?`=${answer}`:
+     `=\\frac{${kanyaku(m[1],1)}\\times${root(m[0])} } {${root(m[0])}\\times${root(m[0])}}=${answer}`}
+      $$`;
+  }
+}
+if(i===5){
+  let p=[2,3,5,6];
+  let pm=getRandomInt(-1,1,true);
+  let j=getRandomInt(1,4);
+  if(j===1){ 
+  a=p[getRandomInt(0,3)];
+  b=getRandomInt(2,6);
+  do{c=getRandomInt(1,6);}while(b===c);
+    shiki=`${root(a*b**2)}${moji(pm)}${root(a*c**2)}`;
+    answer=`${keisu(b+c*pm)}${root(a)}`;
+    solution=`$$ ${shiki}=${kanyaku(a*b**2,1)}${moji(pm)}${kanyaku(a*c**2,1)}=${answer} $$`;
+}
+if(j===2){
+  a=p[getRandomInt(0,3)];
+  b=getRandomInt(2,6);
+  let pm2=getRandomInt(-1,1,true)
+  do{c=getRandomInt(1,6);}while(b===c);
+  let d;
+  do{d=getRandomInt(1,7)}while(d===b || d===c)
+    shiki=`${root(a*b**2)}${moji(pm)}${root(a*c**2)}${moji(pm2)}${root(a*d**2)}`;
+    answer=b+c*pm+d*pm2===0 ? 0:`${keisu(b+c*pm+d*pm2)}${root(a)}`;
+    solution=`$$ ${shiki}$$
+    $$=${kanyaku(a*b**2,1)}${moji(pm)}${kanyaku(a*c**2,1)}${moji(pm2)}${kanyaku(a*d**2,1)}$$
+    $$=${answer} $$`;
+}
+if(j===3){
+  a=[p[getRandomInt(0,3)],0];
+  do{a[1]=p[getRandomInt(0,3)]}while(a[1]===a[0])
+  b=[getRandomInt(2,6),getRandomInt(2,6)];
+  let pm2=[getRandomInt(-1,1,true),getRandomInt(-1,1,true)];
+  do{c=getRandomInt(1,6);}while(b[0]===c);
+  let d;
+  do{d=getRandomInt(1,7)}while(b[1]===d)
+    shiki=`${root(a[0]*b[0]**2)}${moji(pm)}${root(a[1]*b[1]**2)}${moji(pm2[0])}${root(a[1]*d**2)}${moji(pm2[1])}${root(a[0]*c**2)}`;
+    answer=`${keisu(b[0]+c*pm2[1])}${root(a[0])}${moji(b[1]+d*pm2[0])}${root(a[1])}`;
+    solution=`$$ ${shiki}$$
+    $$=${kanyaku(a[0]*b[0]**2,1)}${moji(pm)}${kanyaku(a[1]*b[1]**2,1)}${moji(pm2[0])}${kanyaku(a[1]*d**2,1)}
+    ${moji(pm2[1])}${kanyaku(a[0]*c**2,1)}$$
+    $$=${answer} $$`;
+}
+if(j===4){
+  a=p[getRandomInt(0,3)];
+  b=getRandomInt(2,6);
+  do{c=getRandomInt(1,6);}while(b===c);
+    shiki=`${root(a*b**2)}${moji(pm)} \\frac{${a*c}} {${root(a)}} `;
+    answer=`${keisu(b+c*pm)}${root(a)}`;
+    solution=`$$ ${shiki}$$
+    $$=${kanyaku(a*b**2,1)}${moji(pm)} \\frac{${a*c}\\times${root(a)}} {${root(a)}\\times ${root(a)}}$$
+    $$=${kanyaku(a*b**2,1)}${moji(pm)} \\frac{${a*c}${root(a)}} {${a}}$$
+    $$=${kanyaku(a*b**2,1)}${moji(pm)}${kanyaku(a*c**2,1)}$$
+    $$=${answer} $$`;
+}
+question=`$$ ${shiki}を計算しなさい。 $$`;
+}
+if(i===6){
+  let r=getRandomInt(1,4);
+  let p=[r**2,2,3,5,6];
+  let pm=getRandomInt(-1,1,true);
+  let j=getRandomInt(1,3);
+  if(j===1){
+    a=p[getRandomInt(1,4)];
+    let k=getRandomInt(1,4);
+    if(k===1){
+      do{b=p[getRandomInt(1,4)]}while(b===a)
+      shiki=`${root(a)}\\left(  ${root(b)} ${moji(pm)}${root(a)}\\right)`;
+      answer=`${kanyaku(a*b,1)}${moji(pm)}${a}`;
+      solution=`$$ ${shiki}=${root(a)}\\times ${root(b)}${moji(pm)}${root(a)}\\times ${root(a)} =${answer} $$`;
+    }
+    if(k===2){
+      do{b=p[getRandomInt(1,4)]}while(b===a)
+      c=[getRandomInt(1,6),getRandomInt(1,6),getRandomInt(1,6)];
+      shiki=` ${kanyaku(c[0]**2*a,1)}\\left( ${kanyaku(c[1]**2 *a*b,1)} ${moji(pm)} ${kanyaku(c[2]**2 *b,1)} \\right) `;
+      answer=` ${kanyaku(c[0]**2*a*c[1]**2 *a*b,1)}  ${moji(pm)} ${kanyaku(c[0]**2*a *c[2]**2 *b,1)}  `;
+      solution=`$$ ${shiki}$$
+      $$=${kanyaku(c[0]**2*a,1)}\\times ${kanyaku(c[1]**2 *a*b,1)} ${moji(pm)} ${kanyaku(c[0]**2*a,1)}\\times ${kanyaku(c[2]**2 *b,1)}$$
+      $$ =${answer} $$`;
+    }
+    if(k===3){
+      do{b=p[getRandomInt(1,4)]}while(b===a)
+      c=[1,getRandomInt(2,6),getRandomInt(2,6)];
+      shiki=` ${kanyaku(c[0]**2*a,1)}\\left( ${root(c[1]**2 *a*b,1)} ${moji(pm)} ${root(c[2]**2 *b,1)} \\right) `;
+      answer=` ${kanyaku(c[0]**2*a*c[1]**2 *a*b,1)}  ${moji(pm)} ${kanyaku(c[0]**2*a *c[2]**2 *b,1)}  `;
+      solution=`$$ ${shiki}$$
+      $$=${kanyaku(c[0]**2*a,1)}\\times ${kanyaku(c[1]**2 *a*b,1)} ${moji(pm)} ${kanyaku(c[0]**2*a,1)}\\times ${kanyaku(c[2]**2 *b,1)}$$
+      $$ =${answer} $$`;
+    }
+    if(k===4){ 
+       do{b=p[getRandomInt(1,4)]}while(b===a)
+      c=[1,getRandomInt(2,5),getRandomInt(2,6)];
+      shiki=` ${kanyaku(c[0]**2*a,1)}\\left( ${root(c[1]**2 *a*b,1)} ${moji(pm)} ${root(c[2]**2 *a,1)} \\right) `;
+      answer=` ${kanyaku(c[0]**2*a*c[1]**2 *a*b,1)}  ${moji(pm)} ${kanyaku(c[0]**2*a *c[2]**2 *a,1)}  `;
+      solution=`$$ ${shiki}$$
+      $$=${kanyaku(c[0]**2*a,1)}\\times ${kanyaku(c[1]**2 *a*b,1)} ${moji(pm)} ${kanyaku(c[0]**2*a,1)}\\times ${kanyaku(c[2]**2 *a,1)}$$
+      $$ =${answer} $$`;
+    }
+  }
+  if(j===2){
+     a=p[getRandomInt(1,4)];
+     do{b=p[getRandomInt(1,4)]}while(a===b)
+    let k=getRandomInt(1,2);
+    if(k===1){
+      c=[getRandomInt(-3,3,true),getRandomInt(-3,3,true)];
+      shiki=`\\left(  ${root(a)}${teisu(c[0])} \\right)\\left(  ${root(b*a)}${teisu(c[1])} \\right)`;
+      answer=`${kanyaku(a**2*b,1)}${moji(c[1],root(a))}${moji(c[0]/Math.abs(c[0]),kanyaku(a*b*c[0]**2,1))}${teisu(c[0]*c[1])}`;
+      solution=`$$ ${shiki}$$
+      $$=${root(a**2*b)}${moji(c[1],root(a))}${moji(c[0],root(a*b))}${teisu(c[0]*c[1])}$$
+      $$=${answer} $$`;
+    }
+    if(k===2){
+      c=getRandomInt(-4,4,true);
+      shiki=`\\left(  ${root(a)}${moji(pm,root(b))} \\right)  \\left(  ${root(b*a)}${teisu(c)} \\right)`;
+      answer=`${keisu(c+b,root(a))}${moji(c*pm+a,root(b))}`;
+      solution=`$$ ${shiki} $$
+      $$=${root(a)}\\times${root(b*a)} +${root(a)}\\times${kakko(c)}  ${moji(pm,root(b))}\\times${root(b*a)}
+       ${moji(pm,root(b))}\\times${kakko(c)}$$
+      $$ =${kanyaku(a**2*b,1)}${moji(pm)}${kanyaku(b**2*a,1)}${moji(c,root(a))}${moji(c*pm,root(b))} $$
+       $$ =${answer} $$`;
+    }
+  }
+  if(j===3){
+    a=p[getRandomInt(1,4)];
+    let k=getRandomInt(1,4);
+    if(k===1){
+      b=getRandomInt(-3,3,true);
+      do{c=getRandomInt(-3,3,true);}while(b===c)
+      shiki=`\\left( ${root(a)}${teisu(b)} \\right)\\left( ${root(a)}${teisu(c)} \\right)`;
+      answer=`${a+b*c}${moji(b+c,root(a))}`;
+      solution=`$$ ${shiki}$$
+      $$=\\left( ${root(a)}\\right)^2${moji(b+c,root(a))}${teisu(b*c)}$$$$=${answer} $$`;
+    }
+    if(k===2){
+      do{b=p[getRandomInt(0,3)];}while(a===b)
+      shiki=`\\left( ${root(a)}${moji(pm)}${kanyaku(b,1)} \\right)^2`;
+      answer=`${a+b}${moji(pm)}${kanyaku(4*a*b,1)}`; 
+      solution=`$$ ${shiki}$$
+      $$=\\left( ${root(a)}\\right)^2${moji(pm)}2\\times${root(a)}\\times${kanyaku(b,1)}+${b===r**2 ? `${r}^2`:`\\left( ${root(b)}\\right)^2`}$$$$=${answer} $$`;
+    }
+    if(k===3){
+      c=[getRandomInt(2,4),getRandomInt(2,4)];
+      do{b=p[getRandomInt(0,3)]}while(a===b)
+      a=a*c[0]**2;
+      b=b*c[1]**2;
+      shiki=`\\left( ${kanyaku(a,1)}+${kanyaku(b,1)} \\right) \\left( ${kanyaku(a,1)}-${kanyaku(b,1)} \\right)  `;
+      answer=a-b;
+      solution=`$$ ${shiki}$$
+      $$=\\left( ${kanyaku(a,1)} \\right)^2-${b===r**2 *c[1]**2?`${r*c[1]}^2`:`\\left(${kanyaku(b,1)} \\right)^2 `}  $$
+      $$=${a}-${b}=${answer} $$`;
+
+    }
+    if(k===4){
+      c=[getRandomInt(2,4),getRandomInt(2,3)];
+      do{b=p[getRandomInt(0,3)]}while(a===b)
+      a=a*c[0]**2;
+      b=b*c[1]**2;
+      shiki=`\\left( ${kanyaku(a,1)}${moji(pm)}${kanyaku(b,1)} \\right)^2`;
+      answer=`${a+b}${moji(pm)}${kanyaku(4*a*b,1)}`; 
+      solution=`$$ ${shiki}$$
+      $$=\\left( ${kanyaku(a,1)}\\right)^2${moji(pm)}2\\times${kanyaku(a,1)}\\times${kanyaku(b,1)}+${b===c[1]**2 * r**2 ? `${r*c[1]}^2`:`\\left( ${kanyaku(b,1)}\\right)^2`}$$$$=${answer} $$`;
+    }
+
+  }
+  question=`$$ ${shiki}を計算しなさい。 $$`;
+}  
+document.getElementById('question').innerHTML = question;
+      window.correctAnswer = answer;
+      window.solutionText = solution;
+      MathJax.typeset();
+    }
+
+    function checkAnswer() {
+      const user = parseFloat(document.getElementById('userInput').value);
+      const correct = window.correctAnswer;
+      const feedback = document.getElementById('feedback');
+      feedback.textContent = (user === correct) ? '正解！' : `不正解。正解は ${correct} です。`;
+    }
+
+   function showSolution() {
+  if (!window.solutionText) {
+    document.getElementById('solution').innerHTML = 'まだ問題が生成されていません。';
+    return;
+  }
+  document.getElementById('solution').innerHTML = window.solutionText;
+  MathJax.typeset();
+}
+
+    window.onload = function () {
+      generateQuiz();
+      resizeCanvas();
+    };
+
+    function resizeCanvas() {
+      const canvas = document.getElementById('blackboard');
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+  </script>
+  <script>
+    MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }, chtml: { displayAlign: "left" } };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div class="container">
+    <div id="left-area">
+      <h1>根号をふくむ式の計算</h1>
+      <label >モード:
+        <select id="modeSelect1" onchange="generateQuiz()">
+          <option value="1" selected>1.　乗法と除法</option>
+          <option value="2">2.　根号を含む式の変形</option>
+          <option value="3">3.　平方根の乗法</option>
+          <option value="4">4.　分母の有理化</option>
+          <option value="5">5.　加法と減法</option>
+          <option value="6">6.　いろいろな計算</option>
+          
+          <option value="0">　ランダム計算問題</option>
+        </select>
+
+        </label>
+      <div id="question" class="question"></div>
+       <div>
+        <button onclick="showSolution()"style="padding: 1em 2em; font-size: 1.2rem;">解説</button>
+        <button onclick="generateQuiz()"style="padding: 1em 2em; font-size: 1.2rem;">再出題</button>
+      </div>
+      <div id="feedback" class="feedback"></div>
+      <div id="solution" class="solution"></div>
+    </div>
+   <div id="right-area">
+      <p>ここにメモを書いたり、図形を描いたりできます。</p>
+      <canvas id="blackboard" width="700"height="700"></canvas>
+<button onclick="clearBoard()"style="padding: 1em 2em; font-size: 1.2rem;">クリア</button>
+<button onclick="toggleEraser()"style="padding: 1em 2em; font-size: 1.2rem;">消しゴム切替</button>
+      
+    </div>
+  </div>
+
+<script>
+  const canvas = document.getElementById('blackboard');
+  const ctx = canvas.getContext('2d');
+  let drawing = false;
+  let isErasing = false; // 消しゴムモードのフラグ
+
+ function toggleEraser() {
+  isErasing = !isErasing;
+
+  const button = document.querySelector('button[onclick="toggleEraser()"]');
+
+  if (isErasing) {
+    button.style.backgroundColor = "crimson";
+    button.style.color = "white";
+    button.textContent = "消しゴム（使用中）";
+  } else {
+    button.style.backgroundColor = "";
+    button.style.color = "";
+    button.textContent = "消しゴム切替";
+  }
+}
+
+
+  function getStrokeStyle() {
+    return isErasing ? "#222" : "white"; // 黒板色 or 白
+  }
+
+  function getLineWidth() {
+    return isErasing ? 25 : 2; // 消しゴムは太め
+  }
+
+  function drawLine(x, y) {
+    ctx.lineTo(x, y);
+    ctx.strokeStyle = getStrokeStyle();
+    ctx.lineWidth = getLineWidth();
+    ctx.stroke();
+  }
+
+  canvas.addEventListener('mousedown', e => {
+    drawing = true;
+    ctx.beginPath();
+    ctx.moveTo(e.offsetX, e.offsetY);
+  });
+
+  canvas.addEventListener('mousemove', e => {
+    if (drawing) drawLine(e.offsetX, e.offsetY);
+  });
+
+  canvas.addEventListener('mouseup', () => drawing = false);
+  canvas.addEventListener('mouseleave', () => drawing = false);
+
+  canvas.addEventListener('touchstart', e => {
+    e.preventDefault();
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    ctx.beginPath();
+    ctx.moveTo(touch.clientX - rect.left, touch.clientY - rect.top);
+    drawing = true;
+  });
+
+  canvas.addEventListener('touchmove', e => {
+    e.preventDefault();
+    if (!drawing) return;
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    drawLine(touch.clientX - rect.left, touch.clientY - rect.top);
+  });
+
+  canvas.addEventListener('touchend', () => drawing = false);
+
+  function clearBoard() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+</script>
+
+</body>
+</html>
