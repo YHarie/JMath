@@ -409,6 +409,63 @@ function generateQuiz() {//問題生成関数
       $$ よって，　　${answer} $$`;
     }
   question=`$$ 方程式${shiki}　を解きなさい。 $$`;
+  if(i===5){
+    let j=getRandomInt(2,2);
+    let k=getRandomInt(0,1);
+    if(j===1){
+      x1=getRandomInt(-6,6,true);
+      do{x2=getRandomInt(-8,8,true)}while(x1===x2 || x1===-x2)
+      b=[-(x1+x2),`a`];
+      c=[`a`,x1*x2];
+      shiki= k===0 ?`x^2 ${moji(b[k],`x`)}+a=0`:`x^2 +ax${teisu(c[k])}=0`;
+      A=[x1*x2,-(x1+x2)];
+      answer=[x2,A[k]];
+      solution=`$$ ${shiki}の解の1つが${x1}であるから，$$
+      $$ ${shiki}にx=${x1}を代入すると$$
+      $$ ${kakko(x1)}^2${k===0 ?`${Math.abs(b[k])===1 ?moji(b[k],`${kakko(x1)}`):moji(b[k],`\\times${kakko(x1)}`)}`:
+      `+a\\times${x1}`} 
+    ${k===0 ?`+a`:teisu(c[k])}=0$$
+    $$これを解くと，a=${A[k]}$$
+    $$　また，このとき，与えられた方程式は$$
+    $$ x^2${moji(A[1],`x`)}${teisu(A[0])}=0$$
+    $$(x${teisu(-x1)})(x${teisu(-x2)})=0$$
+    $$よって，もう1つの解は　　x=${x2} $$`;
+    }
+    if(j===2){
+      A=[getRandomInt(-4,4,true),0];
+      B=[2,3,5,6,7,8,10,12];
+      A[1]=B[getRandomInt(0,7)];
+      let pm=getRandomInt(-1,1,true);
+      x1=`${-A[0]}${moji(pm,kanyaku(A[1],1))}`;
+      x2=`${-A[0]}${moji(-pm,kanyaku(A[1],1))}`;
+      let q=kanyaku(A[1],2);
+      b=[2*A[0],`a`];
+      c=[`a`,A[0]**2-A[1]];
+      shiki=k===1 ? `x^2+${b[k]}x${teisu(c[k])}=0`:`x^2${moji(b[k],`x`)}+${c[k]}=0`;
+      answer=[x2,k===1 ? b[0]:c[1]];
+      solution=`$$ ${shiki}の解の1つが${x1}であるから，$$
+      $$ ${shiki}にx=${x1}を代入すると$$
+      $$ \\left( ${x1} \\right)^2 
+      ${k===0 ?`${moji(b[k],`\\left ( ${x1} \\right)`)}`:`+a\\left ( ${x1} \\right)`}
+       ${k===0 ?`+a`:teisu(c[k])}=0$$
+      $$ \\left( ${A[0]**2}${moji(pm,2)}\\times ${kakko(-A[0])}\\times  ${kanyaku(A[1],1)}+${A[1]} \\right)       ${k===0 ?`${moji(b[k],`\\left ( ${x1} \\right)`)}`:`+a\\left ( ${x1} \\right)`}
+       ${k===0 ?`+a`:teisu(c[k])}=0$$
+       $$ ${k===0 ?`a=${-1*A[0]**2}${teisu(-A[1])}${teisu(b[k]*A[0])}${moji(pm*2*A[0]*q[0],root(q[1]))}${moji(b[k]*q[0],root(q[1]))}`:
+       ` \\left( ${x1} \\right)a= ${-1*A[0]**2}${teisu(-A[1])}${teisu(-c[k])}${moji(pm*2*A[0]*q[0],root(q[1]))} $$$$\\left( ${x1} \\right)a=${keisu(answer[1],`\\left ( ${x1}\\right)`)} `} $$
+    $$よって，　　a=${answer[1]}$$
+    $$　また，このとき，与えられた方程式は$$
+    $$ x^2${moji(b[0],`x`)}${teisu(c[1])}=0$$
+    $$これを解くと　　x=${-A[0]}\\pm${kanyaku(A[1],1)} $$
+    $$よって，もう1つの解は　　x=${x2} $$`;
+    }
+      question=`$$ xの方程式${shiki}の解の1つが${x1}であるとき，$$
+      $$aの値と，もう1つの解を求めなさい。  $$`;
+
+      
+
+
+    
+  }
     document.getElementById('question').innerHTML = question;
       window.correctAnswer = answer;
       window.solutionText = solution;
@@ -461,7 +518,8 @@ function generateQuiz() {//問題生成関数
           <option value="2">2.　平方根の考えを使った解き方</option>
           <option value="3">3.　2次方程式の解の公式</option>
           <option value="4">4.　いろいろな2次方程式</option>
-          <option value="0">　ランダム</option>
+          <option value="0">　1.～4.　ランダム</option>
+          <option value="5">5.　解が与えられた2次方程式</option>
         </select>
 
         </label>
