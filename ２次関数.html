@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <title>2乗に比例する関数</title>
-  <style>
+   <style>
+    
     html, body {
       margin: 0;
       padding: 0;
@@ -71,6 +72,7 @@ label {
     font-size: 1.4rem;
     margin: 0 0.5em;
   }
+  
   </style>
   <script>
     function getRandomInt(min, max, excludeZero = false) {
@@ -201,6 +203,9 @@ let answer= n===1 ? `${bunsu(p,q)}`: q===1 ? `${keisu(p)}${r}`: `\\frac{${keisu(
 return answer;
 }
 function root(r){return `\\sqrt{${r}}`;}
+
+  
+
 function generateQuiz() {//問題生成関数
   document.getElementById('feedback').textContent = '';
   document.getElementById('solution').textContent = '';
@@ -223,7 +228,9 @@ function generateQuiz() {//問題生成関数
     $$これを解いて，a=${a}$$
     $$よって，${answer} $$`
   }
+  const canvas = document.getElementById('graphCanvas');
   if(i===2){
+    
     a=getRandomInt(-1,1,true);
     b=[0,getRandomInt(2,4)];
     b[0]=getRandomInt(-(b[1]-1),b[1]-1,true);
@@ -236,22 +243,220 @@ function generateQuiz() {//問題生成関数
     k[2]=k[0];
     for(let j=0;j<3;j++){
       B[j]=A[k[2]];
-      answer[j]=`(${C[k[2]]})`;
+      answer[k[2]]=`(${C[j]})`;
       k[2]=(k[0]+k[1])%3;
       k[0]=k[2];
         }
+        let D=[A[0],b[0]/b[1],A[2]];
     question=`$$ 図の\\ 1\\ ～\\ 3\\ は次の関数のグラフのいずれかです。$$
-    $$ (ア)　y=${Math.abs(B[0])===1 ? keisu(B[0],`x^2`):`${B[0]}x^2`}　　　(イ)　y=${Math.abs(B[1])===1 ? keisu(B[1],`x^2`):`${B[1]}x^2`}$$
-    $$ (ウ)　y=${Math.abs(B[2])===1 ? keisu(B[2],`x^2`):`${B[2]}x^2`} $$
+    $$ (ア)　y=${Math.abs(B[0])===1 ? keisu(B[0],`x^2`):`${B[0]}x^2`}　　　(イ)　y=${Math.abs(B[1])===1 ? keisu(B[1],`x^2`):`${B[1]}x^2`}
+    　　 (ウ)　y=${Math.abs(B[2])===1 ? keisu(B[2],`x^2`):`${B[2]}x^2`} $$
     $$ グラフが1\\ ～\\ 3\\ になる関数は(ア)～(ウ)のうち，どれが当てはまるか答えなさい。$$`;
     solution=`$$ 1，2，3\\ の順に${answer} $$`;
+        canvas.style.display = 'block'; // i===2のときだけ表示
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const scale = 30; // 少し拡大
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+
+    // 軸の描画
+    ctx.beginPath();
+    ctx.strokeStyle = '#ddd';
+    ctx.moveTo(0, centerY); ctx.lineTo(canvas.width, centerY);
+    ctx.moveTo(centerX, 0); ctx.lineTo(centerX, canvas.height);
+    ctx.stroke();
+
+    const colors = ['red', 'blue', 'green'];
+    for (let j = 0; j < 3; j++) {
+        let a = D[j];
+        ctx.beginPath();
+        ctx.strokeStyle = colors[j];
+        
+        // グラフの描画
+        for (let x = -10; x <= 10; x += 0.1) {
+            let y = a * x * x;
+            let cx = centerX + x * scale;
+            let cy = centerY - y * scale;
+            if (x === -10) ctx.moveTo(cx, cy);
+            else ctx.lineTo(cx, cy);
+        }
+        ctx.stroke();
+
+        // ★ラベルの描画位置を調整（画面内に収める）
+        ctx.fillStyle = colors[j];
+        ctx.font = "bold 20px sans-serif";
+        
+        // aの値によって、ラベルを置くX座標を変える（重なり防止）
+        let labelX = -2 + (j * 0.5); 
+        let labelY = a * labelX * labelX;
+        
+        // Canvasの端っこ（上下50px以内）に収まるように制限
+        let drawY = centerY - labelY * scale;
+        if (drawY < 30) drawY = 30;
+        if (drawY > canvas.height - 30) drawY = canvas.height - 30;
+
+        ctx.fillText(j + 1, centerX + labelX * scale, drawY);
+    }
+
   }
-   document.getElementById('question').innerHTML = question;
+  else {
+    // i が 2 以外のときは Canvas を隠す
+    if (canvas) canvas.style.display = 'none';
+}
+if(i===3){
+  let j=getRandomInt(1,2);
+  b=getRandomInt(-4,1,true);
+    do{c=b+getRandomInt(2,4);}while(c===0)
+  if(j===1){
+    a=getRandomInt(-3,3,true);
+    
+    shiki=`y=${keisu(a,`x^2`)}`;
+    A=[a*b**2,a*c**2];
+    if(b*c<0){let m=Math.max(b**2,c**2);
+      answer= a>0 ?[0,a*m]:[a*m,0];
+    }
+    else{let m=b**2<c**2 ? [b**2,c**2]:[c**2,b**2];
+       answer= a>0 ?[a*m[0],a*m[1]]:[a*m[1],a*m[0]];
+    }
+  }
+  if(j===2){
+    a=[0,getRandomInt(2,6,true)];
+    a[0]=(getRandomInt(1,a[1]-1)+getRandomInt(0,1)*a[1])*getRandomInt(-1,1,true);
+    shiki=`y=${bunsu(a[0],a[1],0)}x^2`;
+    A=[bunsu(a[0]*b**2,a[1],0),bunsu(a[0]*c**2,a[1],0)];
+     if(b*c<0){let m=Math.max(b**2,c**2);
+      answer= a[0]>0 ?[0,bunsu(a[0]*m,a[1],0)]:[bunsu(a[0]*m,a[1],0),0];
+    }
+    else{let m=b**2<c**2 ? [b**2,c**2]:[c**2,b**2];
+       answer= a[0]>0 ?[bunsu(a[0]*m[0],a[1],0),bunsu(a[0]*m[1],a[1],0)]:[bunsu(a[0]*m[1],a[1],0),bunsu(a[0]*m[0],a[1],0)];
+    }
+let aVal = (j === 2) ? a[0]/a[1] : a;
+  currentParams = { a: aVal, b: b, c: c, type: j };
+  }
+  question=`$$ 関数\\ ${shiki}\\ について，$$
+  $$xの変域が${b}\\leqq x \\leqq ${c}\\ であるとき，$$
+  $$y\\ の変域を求めなさい。$$`;
+  solution=`$$ x=${b}のとき，y=${A[0]}$$
+  $$ x=${c}のとき，y=${A[1]} $$
+  $$ よって，グラフは上の図の青線部分である。$$
+  $$したがって，y\\ の変域は　${answer[0]}\\leqq y \\leqq ${answer[1]}$$`;
+  window.currentParams = { a: a, b: b, c: c, type: j }; 
+  window.currentI = i; // 現在のモードも保存
+}  
+if(i===4){
+  let j=getRandomInt(1,2);
+  b=getRandomInt(-4,4);
+  c=getRandomInt(1,4)+b;
+  if(j===1){
+    a=getRandomInt(-3,3,true);
+    shiki=`y=${keisu(a,`x^2`)}`;
+    answer=a*(b+c);
+    A=[a*b**2,a*c**2];
+    x1=kakko(A[0]);
+    x2=kakko(A[1]);
+  }
+  if(j===2){
+    a=[0,getRandomInt(2,6)];
+    a[0]=(getRandomInt(1,a[1]-1)+a[1]*getRandomInt(0,1))*getRandomInt(-1,1,true);
+    shiki=`y=${bunsu(a[0],a[1],0)}x^2`;
+    answer=bunsu(a[0]*(b+c),a[1],0);
+    B=[a[0]*b**2,a[0]*c**2];
+    A=[bunsu(B[0],a[1],0),bunsu(B[1],a[1],0)];
+    x1=a[0]>0 ?A[0]:`\\left( ${A[0]} \\right)`;
+    x2=a[0]>0 ?A[1]:`\\left( ${A[1]} \\right)`;
+  }
+
+  question=`$$ 関数\\ ${shiki}\\ について，xの値が$$
+  $$${b}から${c}まで増加するときの変化の割合を求めなさい。 $$`;
+  solution=`$$ x=${b}のとき，y=${A[0]}$$
+  $$x=${c}のとき，y=${A[1]} $$
+  $$ よって，変化の割合は${bunsu(`(yの増加量)`,`(xの増加量)`)}=${bunsu(`${x2}-${x1}`,`${kakko(c)}-${kakko(b)}`)}
+  =${answer} $$`;
+}
+document.getElementById('question').innerHTML = question;
       window.correctAnswer = answer;
       window.solutionText = solution;
       MathJax.typeset();
     }
+    // 解説用グラフ描画関数
+function drawRangeGraph() {
+    const canvas = document.getElementById('graphCanvas');
+    if (!canvas || !window.currentParams) return;
     
+    canvas.style.display = 'block';
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const { a, b, c, type } = window.currentParams;
+    
+    // a の値を数値として確定させる
+    let aVal;
+    if (type === 2) {
+        // aが[分子, 分母]の配列の場合
+        aVal = Array.isArray(a) ? a[0] / a[1] : a;
+    } else {
+        aVal = a;
+    }
+
+    const scaleX = 30;         // x軸：1ユニットあたり30px
+    const scaleY = scaleX / (Math.abs(aVal)+2); // ★y軸：1ユニットあたり10px（1/3に縮小）
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+
+    // 1. 軸の描画
+    ctx.strokeStyle = '#ddd';
+    ctx.setLineDash([]);
+    ctx.beginPath();
+    ctx.moveTo(0, centerY); ctx.lineTo(canvas.width, centerY);
+    ctx.moveTo(centerX, 0); ctx.lineTo(centerX, canvas.height);
+    ctx.stroke();
+
+    // 2. 放物線全体（薄いグレー）
+    ctx.strokeStyle = '#eee';
+    ctx.beginPath();
+    for (let x = -8; x <= 8; x += 0.1) {
+        let y = aVal * x * x;
+        let cx = centerX + x * scaleX;
+        let cy = centerY - y * scaleY; // y軸に別のスケールを適用
+        if (x === -8) ctx.moveTo(cx, cy);
+        else ctx.lineTo(cx, cy);
+    }
+    ctx.stroke();
+
+    // 3. 変域部分の強調（青い太線）
+    ctx.strokeStyle = 'blue';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    for (let x = b; x <= (c + 0.05); x += 0.1) {
+        // xがcを超えないように制限
+        let drawX = Math.min(x, c);
+        let y = aVal * drawX * drawX;
+        let cx = centerX + drawX * scaleX;
+        let cy = centerY - y * scaleY;
+        
+        if (x === b) ctx.moveTo(cx, cy);
+        else ctx.lineTo(cx, cy);
+    }
+    ctx.stroke();
+
+    // 4. 端点の y 座標へのガイド（点線など）
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = 'red';
+    ctx.setLineDash([5, 5]); // 点線
+    [b, c].forEach(val => {
+        let y = aVal * val * val;
+        let cx = centerX + val * scaleX;
+        let cy = centerY - y * scaleY;
+        
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.lineTo(centerX, cy); // y軸への水平線
+        ctx.stroke();
+    });
+    ctx.setLineDash([]); // 実線に戻す
+}
 
     function checkAnswer() {
       const user = parseFloat(document.getElementById('userInput').value);
@@ -291,7 +496,7 @@ function generateQuiz() {//問題生成関数
 <body>
   <div class="container">
     <div id="left-area">
-      <h1>２次方程式</h1>
+      <h1>関数 $ y=ax^2 $</h1>
       <label >モード:
         <select id="modeSelect1" onchange="generateQuiz()">
           <option value="1" selected>1.　二乗に比例する関数</option>
@@ -303,10 +508,15 @@ function generateQuiz() {//問題生成関数
 
         </label>
       <div id="question" class="question"></div>
+      
+
        <div>
-        <button onclick="showSolution()"style="padding: 1em 2em; font-size: 1.2rem;">解説</button>
+        <button onclick="showSolution(); if(window.currentI === 3) drawRangeGraph();" 
+        style="padding: 1em 2em; font-size: 1.2rem;">
+          解説</button>
         <button onclick="generateQuiz()"style="padding: 1em 2em; font-size: 1.2rem;">再出題</button>
       </div>
+      <canvas id="graphCanvas" width="400" height="400" style="border:1px solid #000; display:none; margin:20px auto;"></canvas>
       <div id="feedback" class="feedback"></div>
       <div id="solution" class="solution"></div>
     </div>
