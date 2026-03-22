@@ -381,6 +381,26 @@ document.getElementById('question').innerHTML = question;
       MathJax.typeset();
     }
     // 解説用グラフ描画関数
+    function drawFraction(ctx, num, den, x, y, color = 'black') {
+    ctx.save();
+    ctx.fillStyle = color;
+    ctx.textAlign = 'center';
+    ctx.font = "12px sans-serif";
+      [num,den]=yakubun(num,den);
+    // 分子
+    ctx.fillText(num, x, y - 6);
+    // 分母
+    ctx.fillText(den, x, y + 10);
+    // 分数線（横棒）
+    ctx.strokeStyle = color;
+    ctx.beginPath();
+    ctx.moveTo(x - 8, y);
+    ctx.lineTo(x + 8, y);
+    ctx.stroke();
+    ctx.restore();
+}
+
+// 解説用グラフ描画関数（i===3用）
 function drawRangeGraph() {
     const canvas = document.getElementById('graphCanvas');
     if (!canvas || !window.currentParams) return;
@@ -391,71 +411,129 @@ function drawRangeGraph() {
 
     const { a, b, c, type } = window.currentParams;
     
-    // a の値を数値として確定させる
-    let aVal;
-    if (type === 2) {
-        // aが[分子, 分母]の配列の場合
-        aVal = Array.isArray(a) ? a[0] / a[1] : a;
-    } else {
-        aVal = a;
-    }
+    // 係数 a の数値確定（type=2のときはa[0]/a[1]）
+    let aVal = (type === 2) ? a[0] / a[1] : a;
 
-    const scaleX = 30;         // x軸：1ユニットあたり30px
-    const scaleY = scaleX / (Math.abs(aVal)+2); // ★y軸：1ユニットあたり10px（1/3に縮小）
+    const scaleX = 30;         // x軸：1ユニット30px
+    const scaleY = scaleX / (Math.abs(aVal)*3); // y軸：1ユニット10px (1/3に圧縮)
     const centerX = canvas.width / 2;
     const centerY = canvas.height / 2;
 
-    // 1. 軸の描画
-    ctx.strokeStyle = '#ddd';
-    ctx.setLineDash([]);
+    // --- 1. 軸と原点の描画 ---
+    ctx.strokeStyle = '#999';
+    ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.moveTo(0, centerY); ctx.lineTo(canvas.width, centerY);
     ctx.moveTo(centerX, 0); ctx.lineTo(centerX, canvas.height);
     ctx.stroke();
 
-    // 2. 放物線全体（薄いグレー）
+    ctx.fillStyle = '#666';
+    ctx.font = "italic 14px serif";
+    ctx.fillText("O", centerX - 12*Math.abs(aVal)/aVal, centerY + 12*Math.abs(aVal)/aVal);
+
+    // --- 2. 放物線全体（細い線） ---
     ctx.strokeStyle = '#eee';
     ctx.beginPath();
     for (let x = -8; x <= 8; x += 0.1) {
-        let y = aVal * x * x;
-        let cx = centerX + x * scaleX;
-        let cy = centerY - y * scaleY; // y軸に別のスケールを適用
-        if (x === -8) ctx.moveTo(cx, cy);
-        else ctx.lineTo(cx, cy);
+        let cy = centerY - (aVal * x * x) * scaleY;
+        if (x === -8) ctx.moveTo(centerX + x * scaleX, cy);
+        else ctx.lineTo(centerX + x * scaleX, cy);
     }
     ctx.stroke();
 
-    // 3. 変域部分の強調（青い太線）
+    // --- 3. 変域部分（太い青線） ---
     ctx.strokeStyle = 'blue';
     ctx.lineWidth = 3;
     ctx.beginPath();
     for (let x = b; x <= (c + 0.05); x += 0.1) {
-        // xがcを超えないように制限
         let drawX = Math.min(x, c);
-        let y = aVal * drawX * drawX;
-        let cx = centerX + drawX * scaleX;
-        let cy = centerY - y * scaleY;
-        
-        if (x === b) ctx.moveTo(cx, cy);
-        else ctx.lineTo(cx, cy);
+        let cy = centerY - (aVal * drawX * drawX) * scaleY;
+        if (x === b) ctx.moveTo(centerX + b * scaleX, cy);
+        else ctx.lineTo(centerX + drawX * scaleX, cy);
     }
     ctx.stroke();
 
-    // 4. 端点の y 座標へのガイド（点線など）
+    // --- 4. 端点の座標表示とガイド線 ---
     ctx.lineWidth = 1;
-    ctx.strokeStyle = 'red';
-    ctx.setLineDash([5, 5]); // 点線
+    ctx.font = "12px sans-serif";
+    
     [b, c].forEach(val => {
-        let y = aVal * val * val;
+        let yVal = aVal * val * val;
         let cx = centerX + val * scaleX;
-        let cy = centerY - y * scaleY;
-        
+        let cy = centerY - yVal * scaleY;
+
+        // ガイド線（点線）
+        ctx.setLineDash([2, 2]);
+        ctx.strokeStyle = '#aaa';
         ctx.beginPath();
-        ctx.moveTo(cx, cy);
-        ctx.lineTo(centerX, cy); // y軸への水平線
+        ctx.moveTo(cx, cy); ctx.lineTo(cx, centerY); // x軸へ
+        ctx.moveTo(cx, cy); ctx.lineTo(centerX, cy); // y軸へ
         ctx.stroke();
+        ctx.setLineDash([]);
+
+        // --- 数値ラベルの描画 ---
+        ctx.fillStyle = 'black';
+        ctx.textAlign = 'center';
+        // x軸の数値
+        ctx.fillText(val, cx, centerY + 15);
+
+        // y軸の数値（分数の判定）
+        if (type === 2) {
+            let num = a[0] * val * val; // 分子
+            let den = a[1];             // 分母
+            // 割り切れる場合は整数、そうでない場合は分数描画
+            if (num % den === 0) {
+                ctx.textAlign = 'right';
+                ctx.fillText(num / den, centerX - 5, cy + 4);
+            } else {
+                drawFractionLabel(ctx, num, den, centerX - 15, cy);
+            }
+        } else {
+            ctx.textAlign = 'right';
+            ctx.fillText(Math.round(yVal * 10) / 10, centerX - 5, cy + 4);
+        }
+
+        // 端点の黒丸
+        ctx.beginPath();
+        ctx.arc(cx, cy, 4, 0, Math.PI * 2);
+        ctx.fill();
     });
-    ctx.setLineDash([]); // 実線に戻す
+
+    // x=0を跨ぐ場合、原点も強調
+    if (b * c <= 0) {
+        ctx.fillStyle = 'blue';
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, 3, 0, Math.PI * 2);
+        ctx.fill();
+    }
+}
+
+// 分数ラベル描画用サブ関数
+function drawFractionLabel(ctx, num, den, x, y) {
+    ctx.save();
+    ctx.fillStyle = 'black';
+    ctx.textAlign = 'center';
+    ctx.font = "10px sans-serif";
+[num,den]=yakubun(num,den);
+    // 負の数の処理
+    let isNegative = (num * den < 0);
+    let absNum = Math.abs(num);
+    let absDen = Math.abs(den);
+
+    if (isNegative) {
+        ctx.fillText("ー", x - 14, y + 4);
+    }
+
+    // 分子
+    ctx.fillText(absNum, x, y - 6);
+    // 分数線
+    ctx.strokeStyle = 'black';
+    ctx.beginPath();
+    ctx.moveTo(x - 8, y); ctx.lineTo(x + 8, y);
+    ctx.stroke();
+    // 分母
+    ctx.fillText(absDen, x, y + 10);
+    ctx.restore();
 }
 
     function checkAnswer() {
