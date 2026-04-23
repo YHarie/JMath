@@ -212,8 +212,8 @@ if(i===1){//単項式×多項式
 let a,b,c,d,shiki,char,X;
 char=[[`a`,`b`,`c`,``],[`x`,`y`,`z`,``]];
 X=char[getRandomInt(0,1)];
-
-a=[getRandomInt(1,3),getRandomInt(-2,2,true),getRandomInt(-6,6,true)];
+do
+{a=[getRandomInt(1,3),getRandomInt(-2,2,true),getRandomInt(-6,6,true)];}while(gcd(a[0],gcd(a[1],a[2]))!==1)
 b=getRandomInt(2,4,true);
 c=[0,0];
 do{c[0]=getRandomInt(0,3);
