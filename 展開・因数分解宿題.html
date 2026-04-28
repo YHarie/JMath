@@ -260,7 +260,7 @@ if (I === 0) {
   if (I === 1) {
 	let p,q,a;
 	p=getRandomInt(1,7)*getRandomInt(-1,1,true);
-	do{q=getRandomInt(1,7)*getRandomInt(-1,1,true);}while(Math.abs(p)===Math.abs(q))
+	do{q=getRandomInt(1,7)*getRandomInt(-1,1,true);}while(Math.abs(p)===Math.abs(q) || Math.abs(p-q)===1 )
 	a=[p+q,q*p];
   let b=[Math.abs(a[0]),Math.abs(a[1])];
 	 question = `$$ (x${teisu(p)})(x${teisu(q)})を展開すると$$
