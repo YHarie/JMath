@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
-  <title>平方根宿題</title>
+  <title>展開・因数分解宿題</title>
   <style>
     html, body {
       margin: 0;
@@ -256,26 +256,27 @@ if (I === 0) {
 
     return;
   }
-  let Q=[0,0,0,0];
-  if (I === 1) {
+
+if(I<6&&0<I){
+  let j=getRandomInt(1,5);
+ let A=getRandomInt(0,3);
+  if (j === 1) {
 	let p,q,a;
-  a=getRandomInt(0,3);
-  p=getRandomInt(1,9);
-  q=p**2;
+	p=getRandomInt(1,7)*getRandomInt(-1,1,true);
+	do{q=getRandomInt(1,7)*getRandomInt(-1,1,true);}while(Math.abs(p)===Math.abs(q))
+	a=[p+q,q*p,-(p+q),-p*q];
+  let Q=[0,0,0,0];
   for(let j=0;j<4;j++){
-    if(j===0){Q[(a+j)%4]=`\\pm${p}`;}
-    if(j===1){Q[(a+j)%4]=`\\pm${q}`;}
-    if(j===2){Q[(a+j)%4]=`${p}`;}
-    if(j===3){Q[(a+j)%4]=`\\pm\\sqrt{${p}}`;}
+    Q[(A+j)%4]=`x^2${moji(a[j%4],`x`)}${teisu(a[(j+1)%4])}`;
   }
-	 question = `$$ ${q}の平方根は \\fbox{ 1 } である。$$
-   $$空欄に当てはまる最も適当なものを選択肢1 ～ 4 の中から選び，$$$$番号で答えなさい。$$
+   question = `$$ (x${teisu(p)})(x${teisu(q)})を展開すると\\fbox{ 1 }である。$$
+   $$空欄に当てはまるものを選択肢1 ～ 4 の中から選び，番号で答えなさい。$$
    $$1.　${Q[0]}　　　　$$$$2.　${Q[1]}$$
    $$3.　${Q[2]}　　　　$$$$4.　${Q[3]}$$`;
 
-	 solution = `$$${q}の平方根は\\pm{${p}}である。$$
-   $$ aの平方根とは，2乗してaになる数のこと$$
-   $$ 整数や分数で表せないときは\\sqrt{}（根号）を用いて\\pm\\sqrt{a}のように表す。 $$`;
+	 solution = `$$(x${teisu(p)})(x${teisu(q)})=x^2+(${p}${teisu(q)})x+${kakko(p)}\\cdot ${kakko(q)}=x^2${moji(p+q,`x`)}${teisu(p*q)}$$
+   $$ 展開の公式①$$
+   $$(x+a)(x+b)=x^2+(a+b)x+ab $$`;
 
     for (let i = 0; i < 1; i++) {
       let input = document.createElement("input");
@@ -285,7 +286,7 @@ if (I === 0) {
       inputsDiv.appendChild(input);
     }
 
-    correctAnswers = [a+1];
+    correctAnswers = [A+1];
 	
 
 
@@ -293,30 +294,27 @@ if (I === 0) {
     MathJax.typesetClear();
     MathJax.typeset();
   }
-if (I === 2) {
-	let p,q,a;
-  a=getRandomInt(1,4);
-  p=[0,0];
-  if(a%2===0){p[0]=1;}
-  if(a>2){p[1]=1;}
-  q=getRandomInt(2,3)**2+getRandomInt(1,2)*getRandomInt(-1,1,true);
-  let Q=[0,0];
-  Q[0]=`${q}の平方根は${p[0]===0 ? `\\pm`:``}\\sqrt{${q}}である。`;
-  let b=getRandomInt(1,3);
-  Q[1]=`\\sqrt{${b**2}}は${p[1]===0?`${b}`:`\\pm${b}`}である。`;
+ if (j === 2) {
+  	let p,q,a;
+	p=getRandomInt(1,7);
+	q=getRandomInt(-1,1,true);
+	a=[2*p*q,p**2];
+  let Q=[0,0,0,0];
+  for(let j=0;j<4;j++){
+    if(j===0){Q[A]=`x^2${moji(a[0],`x`)}${teisu(a[1])}`;}
+    if(j===1){Q[(A+j)%4]=`x^2${moji(a[0]/2,`x`)}${teisu(a[1])}`;}
+    if(j===2){Q[(A+j)%4]=`x^2${teisu(a[1])}`}
+    if(j===3){Q[(A+j)%4]=`x^2${teisu(-a[1])}`}
+  }
+ 	 question = `$$ (x${moji(q,`${p}`)})^2を展開すると$$
+   $$\\fbox{ 1 }$$
+   $$空欄に当てはまるものを選択肢1 ～ 4 の中から選び，番号で答えなさい。$$
+   $$1.　${Q[0]}　　　　$$$$2.　${Q[1]}$$
+   $$3.　${Q[2]}　　　　$$$$4.　${Q[3]}$$`;
 
-	 question = `$$ 次の文章(a)，(b)の正誤として正しい組み合わせのものを選び，番号で答えよ。$$
-   $$(a)　${Q[0]}$$
-   $$(b)　${Q[1]} $$
-   $$ 1.　(a)　正　　(b)　正$$
-   $$ 2.　(a)　誤　　(b)　正$$
-   $$ 3.　(a)　正　　(b)　誤$$
-   $$ 4.　(a)　誤　　(b)　誤$$`;
-
-	 solution = `$$${q}の平方根とは，2乗すると${q}になる数という意味であるので$$
-   $$\\sqrt{${q}}と -\\sqrt{${q}}の2つが${q}の平方根である。$$
-   $$また，\\sqrt{${b**2}}は２乗すると${b**2}になる正の数であるから,$$
-   $$\\sqrt{${b**2}}=${b}である。 $$`;
+	 solution = `$$(x${moji(q,`${p}`)})^2=x^2 ${moji(q,`2\\cdot${keisu(p,`x`)}`)}+${kakko(p*q)}^{2}=x^2${moji(a[0],`x`)}${teisu(a[1])}$$
+   $$ 展開の公式②$$
+   $$(x+a)^2=x^2+2ax+a^2 $$`;
 
     for (let i = 0; i < 1; i++) {
       let input = document.createElement("input");
@@ -325,270 +323,105 @@ if (I === 2) {
       input.id = `input${i}`;
       inputsDiv.appendChild(input);
     }
-
-    correctAnswers = [a];
-	
-
-
-    document.getElementById("question").innerHTML = question;
-    MathJax.typesetClear();
-    MathJax.typeset();
-
-}
-if (I === 3) {
-	let p,q,a;
-  a=getRandomInt(1,4);
-  p=[0,0];
-  if(a%2===0){p[0]=1;}
-  if(a>2){p[1]=1;}
-  q=getRandomInt(2,3)**2+getRandomInt(1,2)*getRandomInt(-1,1,true);
-  let Q=[0,0];
-  Q[0]=`\\left( \\sqrt{${q}} \\right)^2 の値は${p[0]===0 ? `${q}`:`${q**2}`}である。`;
-  let b=getRandomInt(1,3);
-  Q[1]=`-\\sqrt{${b**2}}の値は${p[1]===0?`-${b}`:`${b}`}である。`;
-
-	 question = `$$ 次の文章(a)，(b)の正誤として正しい組み合わせのものを選び，番号で答えよ。$$
-   $$(a)　${Q[0]}$$
-   $$(b)　${Q[1]} $$
-   $$ 1.　(a)　正　　(b)　正$$
-   $$ 2.　(a)　誤　　(b)　正$$
-   $$ 3.　(a)　正　　(b)　誤$$
-   $$ 4.　(a)　誤　　(b)　誤$$`;
-
-	 solution = `$$\\sqrt{${q}}は，2乗すると${q}になる正の数である。$$
-   $$よって，\\left( \\sqrt{${q}} \\right)^2=${q}$$
-   $$また，-\\sqrt{${b**2}}は2乗すると${b**2}になる負の数であるから,$$
-   $$-\\sqrt{${b**2}}=-${b}である。 $$`;
-
-    for (let i = 0; i < 1; i++) {
-      let input = document.createElement("input");
-      input.className = "input-box";
-      input.type = "number";
-      input.id = `input${i}`;
-      inputsDiv.appendChild(input);
-    }
-
-    correctAnswers = [a];
-	
-
-
-    document.getElementById("question").innerHTML = question;
-    MathJax.typesetClear();
-    MathJax.typeset();
-
-}
-if (I === 4) {
-	let p,q,a;
-  a=getRandomInt(1,4);
-  p=[0,0];
-  if(a%2===0){p[0]=1;}
-  if(a>2){p[1]=1;}
-  q=getRandomInt(2,3)**2+getRandomInt(1,2)*getRandomInt(-1,1,true);
-  let Q=[0,0];
-  Q[0]=` \\sqrt{(${-q})^2}  の値は${p[0]===0 ? `${q}`:`${-q}`}である。`;
-  let b=getRandomInt(1,3);
-  Q[1]=`\\sqrt{${b}^2}の値は${p[1]===0?`${b}`:`\\pm${b}`}である。`;
-
-	 question = `$$ 次の文章(a)，(b)の正誤として正しい組み合わせのものを選び，番号で答えよ。$$
-   $$(a)　${Q[0]}$$
-   $$(b)　${Q[1]} $$
-   $$ 1.　(a)　正　　(b)　正$$
-   $$ 2.　(a)　誤　　(b)　正$$
-   $$ 3.　(a)　正　　(b)　誤$$
-   $$ 4.　(a)　誤　　(b)　誤$$`;
-
-	 solution = `$$\\sqrt{(${-q})^2}は，2乗すると(${-q})^2=${q**2}になる正の数である。$$
-   $$よって，\\sqrt{(${-q})^2}=${q}$$
-   $$また，\\sqrt{${b}^2}は2乗すると${b}^2=${b**2}になる正の数であるから,$$
-   $$\\sqrt{${b}^2}=${b}である。 $$`;
-
-    for (let i = 0; i < 1; i++) {
-      let input = document.createElement("input");
-      input.className = "input-box";
-      input.type = "number";
-      input.id = `input${i}`;
-      inputsDiv.appendChild(input);
-    }
-
-    correctAnswers = [a];
-	
-
-
-    document.getElementById("question").innerHTML = question;
-    MathJax.typesetClear();
-    MathJax.typeset();
-
-}
-if (I === 5) {
-	let p,q,a;
-  a=getRandomInt(1,4);
-  p=[0,0];
-  if(a%2===0){p[0]=1;}
-  if(a>2){p[1]=1;}
-  q=getRandomInt(2,3)**2+getRandomInt(1,2)*getRandomInt(-1,1,true);
-  let Q=[0,0];
-  Q[0]=` 0の平方根は${p[0]===0 ? `0である。`:`存在しない。`}`;
-  let b=getRandomInt(1,3);
-  Q[1]=`${-1*b**2}の平方根は${p[1]===0?`存在しない。`:`${-b}である。`}`;
-
-	 question = `$$ 次の文章(a)，(b)の正誤として正しい組み合わせのものを選び，番号で答えよ。$$
-   $$(a)　${Q[0]}$$
-   $$(b)　${Q[1]} $$
-   $$ 1.　(a)　正　　(b)　正$$
-   $$ 2.　(a)　誤　　(b)　正$$
-   $$ 3.　(a)　正　　(b)　誤$$
-   $$ 4.　(a)　誤　　(b)　誤$$`;
-
-	 solution = `$$0の平方根は，0である。$$
-   $$また，どんな数も2乗すると正の数になるため，$$
-   $$${-1*b**2}の平方根は存在しない。$$`;
-
-    for (let i = 0; i < 1; i++) {
-      let input = document.createElement("input");
-      input.className = "input-box";
-      input.type = "number";
-      input.id = `input${i}`;
-      inputsDiv.appendChild(input);
-    }
-
-    correctAnswers = [a];
-	
-
-
-    document.getElementById("question").innerHTML = question;
-    MathJax.typesetClear();
-    MathJax.typeset();
-
-}
-if (I === 6) {
-	let p,q,a;
-  a=getRandomInt(1,4);
-  p=[0,0];
-  if(a%2===0){p[0]=1;}
-  if(a>2){p[1]=1;}
-  q=getRandomInt(2,3)**2+getRandomInt(1,2)*getRandomInt(-1,1,true);
-  let Q=[0,0];
-  Q[0]=` \\left(-\\sqrt{${q}}\\right)^2  の値は${p[0]===0 ? `${q}`:`${-q}`}である。`;
-  let b=getRandomInt(1,3);
-  Q[1]=`-\\left(-\\sqrt{${b}}\\right)^2の値は${p[1]===0?`${-b}`:`${b}`}である。`;
-
-	 question = `$$ 次の文章(a)，(b)の正誤として正しい組み合わせのものを選び，番号で答えよ。$$
-   $$(a)　${Q[0]}$$
-   $$(b)　${Q[1]} $$
-   $$ 1.　(a)　正　　(b)　正$$
-   $$ 2.　(a)　誤　　(b)　正$$
-   $$ 3.　(a)　正　　(b)　誤$$
-   $$ 4.　(a)　誤　　(b)　誤$$`;
-
-	 solution = `$$-\\sqrt{${q}}は，2乗すると${q}になる負の数である。$$
-   $$よって，\\left(-\\sqrt{${q}}\\right)^2=${q}$$
-   $$また，-\\sqrt{${b}}は2乗すると${b}になる負の数であるから,$$
-   $$-\\left(-\\sqrt{${b}}\\right)^2=-(${b})=${-b}である。 $$`;
-
-    for (let i = 0; i < 1; i++) {
-      let input = document.createElement("input");
-      input.className = "input-box";
-      input.type = "number";
-      input.id = `input${i}`;
-      inputsDiv.appendChild(input);
-    }
-
-    correctAnswers = [a];
-	
-
-
-    document.getElementById("question").innerHTML = question;
-    MathJax.typesetClear();
-    MathJax.typeset();
-
-}
-
-if (I === 7) {
-  		let p,q,a;
-  a=getRandomInt(1,4);
-  p=[0,0];
-  if(a%2===0){p[0]=1;}
-  if(a>2){p[1]=1;}
-  let Q=[0,0];
-  let b=[0,0];
-  b[0]=getRandomInt(2,5);
-  b[1]=b[0]**2+getRandomInt(1,b[0])*getRandomInt(-1,1,true);
-  let ftg=[`\\gt`,`\\lt`];  
-  if(b[0]**2<b[1]){
-    ftg=[`\\lt`,`\\gt`];  }
-    let c=getRandomInt(1,9);
-  Q[0]=` ${b[0]}と\\sqrt{${b[1]}}の大小を比較すると，${b[0]}${ftg[p[0]]}\\sqrt{${b[1]}}である。`;
-  Q[1]=`\\sqrt{${c/10}}と${c/10}の大小を比較すると，\\sqrt{${c/10}}${p[1]===0?`\\gt`:`\\lt`}${c/10}である。`;
-
-	 question = `$$ 次の文章(a)，(b)の正誤として正しい組み合わせのものを選び，番号で答えよ。$$
-   $$(a)　${Q[0]}$$
-   $$(b)　${Q[1]} $$
-   $$ 1.　(a)　正　　(b)　正$$
-   $$ 2.　(a)　誤　　(b)　正$$
-   $$ 3.　(a)　正　　(b)　誤$$
-   $$ 4.　(a)　誤　　(b)　誤$$`;
-
-	 solution = `$$${b[0]}と\\sqrt{${b[1]}}をそれぞれ2乗して大小を比較すると$$
-   $$ ${b[0]**2}${ftg[0]}${b[1]}である。$$
-   $$よって， ${b[0]}${ftg[0]}\\sqrt{${b[1]}} $$
-   $$また，\\sqrt{${c/10}}と${c/10}をそれぞれ2乗して大小を比較すると$$
-   $$ ${c/10}\\gt ${c**2/100} である。$$
-   $$よって，\\sqrt{${c/10}}\\gt${c/10}$$`;
-
-    for (let i = 0; i < 1; i++) {
-      let input = document.createElement("input");
-      input.className = "input-box";
-      input.type = "number";
-      input.id = `input${i}`;
-      inputsDiv.appendChild(input);
-    }
-
-    correctAnswers = [a];
-	
-
-
-    document.getElementById("question").innerHTML = question;
+    
+    correctAnswers = [A+1];
+	  document.getElementById("question").innerHTML = question;
     MathJax.typesetClear();
     MathJax.typeset();
   }
-if (I === 8) {
-  		let p,q,a;
-  a=getRandomInt(0,3);
-  p=[0,0,0];
-  p[0]=getRandomInt(2,8);
-  p[1]=p[0]**2+getRandomInt(1,p[0])*getRandomInt(-1,1,true);
-  do{
-    p[2]=p[0]**2+getRandomInt(1,p[0])*getRandomInt(-1,1,true);
-  }while(p[2]===p[1])
-  q=[p[0]**2,p[1],p[2]];
-  let K=[0,0,0];
+if (j === 3) {
+  	let p,q,a;
+	p=[getRandomInt(2,6),0];
+  do{p[1]=getRandomInt(1,8)}while(gcd(p[0],p[1])!==1)
+	q=getRandomInt(-1,1,true);
+	a=[p[0]**2,2*p[0]*p[1],p[1]**2];
+  let Q=[0,0,0,0];
+  for(let j=0;j<4;j++){
+    if(j===0){Q[A]=`${keisu(a[0],`x^2`)}${moji(a[1]*q,`x`)}${teisu(a[2])}`;}
+    if(j===1){Q[(A+j)%4]=`${keisu(a[0],`x^2`)}${moji(q*a[1]/2,`x`)}${teisu(a[2])}`;}
+    if(j===2){Q[(A+j)%4]=`${keisu(a[0],`x^2`)}${moji(2*p[1]*q,`x`)}${teisu(a[2])}`;}
+    if(j===3){Q[(A+j)%4]=`${keisu(a[0],`x^2`)}${teisu(q*a[2])}`}
+  }
+ 	 question = `$$ (${keisu(p[0],`x`)}${moji(q,`${p[1]}`)})^2を展開すると$$
+   $$ \\fbox{ 1 } である。$$
+  $$空欄に当てはまるものを選択肢1 ～ 4 の中から選び，番号で答えなさい。$$
+   $$1.　${Q[0]}　　　　$$$$2.　${Q[1]}$$
+   $$3.　${Q[2]}　　　　$$$$4.　${Q[3]}$$`;
+
+	 solution = `$$(${keisu(p[0],`x`)}${moji(q,`${p[1]}`)})^2=(${keisu(p[0],`x`)})^2 ${moji(q,`2\\cdot${keisu(p[1],`\\cdot ${p[0]}x`)}`)}+${kakko(p[1]*q)}^{2}$$
+   $$=${keisu(p[0]**2,`x^2`)}${moji(2*q*p[0]*p[1],`x`)}${teisu(p[1]**2)}$$
+   $$ 展開の公式②$$
+   $$(ax+b)^2=a^2 x^2+2abx+b^2 $$`;
+
+    for (let i = 0; i < 1; i++) {
+      let input = document.createElement("input");
+      input.className = "input-box";
+      input.type = "number";
+      input.id = `input${i}`;
+      inputsDiv.appendChild(input);
+    }
+    
+    correctAnswers = [A+1];
+	  document.getElementById("question").innerHTML = question;
+    MathJax.typesetClear();
+    MathJax.typeset();
+  }
+if (j === 4) {
+  	let p,q,a;
+	p=getRandomInt(1,9);
+  do{q=getRandomInt(2,5);}while(gcd(p,q)!==1)
+	a=[q**2,p**2];
+  let Q=[0,0,0,0];
+  for(let j=0;j<4;j++){
+    if(j===0){Q[A]=`${keisu(a[0],`x^2`)}${teisu(-a[1])}`;}
+    if(j===1){Q[(A+j)%4]=`${keisu(a[0],`x^2`)}${teisu(a[1])}`;}
+    if(j===2){Q[(A+j)%4]=`${keisu(q,`x^2`)}${teisu(-a[1])}`;}
+    if(j===3){Q[(A+j)%4]=`${keisu(a[0],`x`)}${teisu(-a[1])}`;}
+  }
+ 	 question = `$$ (${keisu(q,`x`)}+${p})(${keisu(q,`x`)}-${p})を展開すると$$
+   $$ \\fbox{ 1 } である。$$  
+  $$空欄に当てはまるものを選択肢1 ～ 4 の中から選び，番号で答えなさい。$$
+   $$1.　${Q[0]}　　　　$$$$2.　${Q[1]}$$
+   $$3.　${Q[2]}　　　　$$$$4.　${Q[3]}$$`;
+
+
+	 solution = `$$(${keisu(q,`x`)}+${p})(${keisu(q,`x`)}-${p})
+   =(${keisu(q,`x`)})^2 -${p}^2$$
+   $$=${keisu(q**2,`x^2`)}-${p**2}$$
+   $$ 展開の公式③$$
+   $$(ax+b)(ax-b)=a^2 x^2-b^2 $$`;
+
+    for (let i = 0; i < 1; i++) {
+      let input = document.createElement("input");
+      input.className = "input-box";
+      input.type = "number";
+      input.id = `input${i}`;
+      inputsDiv.appendChild(input);
+    }
+    
+    correctAnswers = [A+1];
+	  document.getElementById("question").innerHTML = question;
+    MathJax.typesetClear();
+    MathJax.typeset();
+  }
+  if (j === 5) {
+	let p,q,a;
+	p=getRandomInt(1,7)*getRandomInt(-1,1,true);
+	do{q=getRandomInt(1,7)*getRandomInt(-1,1,true);}while(Math.abs(p)===Math.abs(q))
+	a=[p+q,q*p,-(p+q),-p*q];
+  let Q=[0,0,0,0];
   for(let j=0;j<3;j++){
-    if(q[j%3]>q[(j+1)%3]){K[j%3]+=1;}
-    else{K[(j+1)%3]+=1;}
+    Q[(A+j)%4]=`x^2${moji(a[j%4],`x`)}${teisu(a[(j+1)%4])}`;
   }
-  let P=[p[0],`\\sqrt{${p[1]}}`,`\\sqrt{${p[2]}}`];
-  let A=[0,0,0];
-  for(let i=0;i<3;i++){
-    for(let k=0;k<3;k++){
-      if(K[k]===i){A[i]=k;}
-    }
-  }
-  let Q=[0,0,0,0];
-  for(let j=0;j<4;j++){
-    if(j<3){
-    Q[(a+j)%4]=`${P[A[j%3]]}\\lt ${P[A[(j+1)%3]]} \\lt${P[A[(j+2)%3]]}`;
-    }
-    else{Q[(a+j)%4]=`${P[A[0]]}\\lt ${P[A[2]]} \\lt${P[A[1]]}`;}
-  }
-	 question = `$$ ${P[0]}，${P[1]}，${P[2]}を不等号を用いて，小さい順に並べると\\fbox{ 1 }となる。$$
-   $$空欄に当てはまる最も適当なものを選択肢1 ～ 4 の中から選び，$$$$番号で答えなさい。$$
+  Q[(A+3)%4]=`2x${teisu(p+q)}`;
+   question = `$$ (x${teisu(p)})(x${teisu(q)})を展開すると\\fbox{ 1 }である。$$
+   $$空欄に当てはまるものを選択肢1 ～ 4 の中から選び，番号で答えなさい。$$
    $$1.　${Q[0]}　　　　$$$$2.　${Q[1]}$$
    $$3.　${Q[2]}　　　　$$$$4.　${Q[3]}$$`;
 
-	 solution = `$$${P}をそれぞれ2乗すると$$
-   $$ ${q}$$
-   $$これを小さい順に並べると${q[A[0]]}\\lt${q[A[1]]}\\lt${q[A[2]]}$$
-   $$よって，${P[A[0]]}\\lt ${P[A[1]]}\\lt ${P[A[2]]}$$`;
+	 solution = `$$(x${teisu(p)})(x${teisu(q)})=x^2+(${p}${teisu(q)})x+${kakko(p)}\\cdot ${kakko(q)}=x^2${moji(p+q,`x`)}${teisu(p*q)}$$
+   $$ 展開の公式①$$
+   $$(x+a)(x+b)=x^2+(a+b)x+ab $$`;
 
     for (let i = 0; i < 1; i++) {
       let input = document.createElement("input");
@@ -598,7 +431,7 @@ if (I === 8) {
       inputsDiv.appendChild(input);
     }
 
-    correctAnswers = [a+1];
+    correctAnswers = [A+1];
 	
 
 
@@ -606,47 +439,40 @@ if (I === 8) {
     MathJax.typesetClear();
     MathJax.typeset();
   }
-if (I === 9) {
-  		let p,q,a;
-  a=getRandomInt(0,3);
-  p=[0,0,0];
-  p[0]=getRandomInt(2,8);
-  p[1]=p[0]**2+getRandomInt(1,p[0])*getRandomInt(-1,1,true);
-  do{
-    p[2]=p[0]**2+getRandomInt(1,p[0])*getRandomInt(-1,1,true);
-  }while(p[2]===p[1])
-  q=[p[0]**2,p[1],p[2]];
-  let K=[0,0,0];
-  for(let j=0;j<3;j++){
-    if(q[j%3]<q[(j+1)%3]){K[j%3]+=1;}
-    else{K[(j+1)%3]+=1;}
-  }
-  let P=[-p[0],`-\\sqrt{${p[1]}}`,`-\\sqrt{${p[2]}}`];
-  let A=[0,0,0];
-  for(let i=0;i<3;i++){
-    for(let k=0;k<3;k++){
-      if(K[k]===i){A[i]=k;}
-    }
-  }
-  let Q=[0,0,0,0];
-  for(let j=0;j<4;j++){
-    if(j<2){
-    Q[(a+j)%4]=`${P[A[j%3]]}\\lt ${P[A[(j+1)%3]]} \\lt${P[A[(j+2)%3]]}`;
-    }
-    if(j===2){
-      Q[(a+j)%4]=`${P[A[2]]}\\lt ${P[A[1]]} \\lt${P[A[0]]}`;
-    }
-    if(j===3){Q[(a+j)%4]=`${P[A[0]]}\\lt ${P[A[2]]} \\lt${P[A[1]]}`;}
-  }
-	 question = `$$ ${P[0]}，${P[1]}，${P[2]}を不等号を用いて，小さい順に並べると\\fbox{ 1 }となる。$$
-   $$空欄に当てはまる最も適当なものを選択肢1 ～ 4 の中から選び，$$$$番号で答えなさい。$$
+
+}
+if(I>5&&I<11){
+let j=getRandomInt(1,4);
+let A=getRandomInt(0,3);
+let Q=[0,0,0,0];
+  if (j === 1) {
+  	let p,q,a;
+	p=[getRandomInt(1,9),0];
+   do{p[1]=getRandomInt(1,9);}while(p[0]===p[1])
+	q=[getRandomInt(-1,1,true),getRandomInt(-1,1,true)]
+     a=[p[0]*q[0]+p[1]*q[1],p[0]*p[1]*q[0]*q[1]];
+     if(p[1]<p[0]){p=[p[1],p[0]];
+      q=[q[1],q[0]];
+     }
+     
+     for(let j=0;j<4;j++){
+      if(j===0){Q[(A+j)%4]=`(x${teisu(q[0]*p[0])})(x${teisu(p[1]*q[1])})`;}
+      if(j===1){Q[(A+j)%4]=`(x${teisu(-q[0]*p[0])})(x${teisu(-p[1]*q[1])})`;}
+      if(j===2){Q[(A+j)%4]=`(x${teisu(-q[0]*p[0])})(x${teisu(p[1]*q[1])})`;}
+      if(j===3){Q[(A+j)%4]=`(x${teisu(q[0]*p[0])})(x${teisu(-p[1]*q[1])})`;}
+     }
+
+ 	 question = `$$ x^2${moji(a[0],`x`)}${teisu(a[1])}を因数分解すると$$
+   $$\\fbox{ 1 }である。$$
+   $$空欄に当てはまるものを選択肢1 ～ 4 の中から選び，番号で答えなさい。$$
    $$1.　${Q[0]}　　　　$$$$2.　${Q[1]}$$
    $$3.　${Q[2]}　　　　$$$$4.　${Q[3]}$$`;
 
-	 solution = `$$${P}をそれぞれ2乗すると$$
-   $$ ${q}$$
-   $$これを小さい順に並べると${q[A[2]]}\\lt${q[A[1]]}\\lt${q[A[0]]}$$
-   $$よって，${P[A[0]]}\\lt ${P[A[1]]}\\lt ${P[A[2]]}$$`;
+	 solution = `$$x^2${moji(a[0],`x`)}${teisu(a[1])}
+   =x^2+(${p[0]*q[0]}${teisu(q[1]*p[1])})x+${kakko(p[0]*q[0])}\\cdot${kakko(p[1]*q[1])}  $$
+   $$=(x${teisu(p[0]*q[0])})(x${teisu(p[1]*q[1])})$$
+   $$ 因数分解の公式①$$
+   $$x^2 +(a+b)x+ab=(x+a)(x+b)  $$`;
 
     for (let i = 0; i < 1; i++) {
       let input = document.createElement("input");
@@ -655,58 +481,40 @@ if (I === 9) {
       input.id = `input${i}`;
       inputsDiv.appendChild(input);
     }
-
-    correctAnswers = [a+1];
-	
-
-
-    document.getElementById("question").innerHTML = question;
+    
+    correctAnswers = [A+1];
+	  document.getElementById("question").innerHTML = question;
     MathJax.typesetClear();
     MathJax.typeset();
   }
-if(I === 10){
-  let a=getRandomInt(0,3);
-  let k=getRandomInt(1,2);
-  let shiki;
-  let Q=[0,0,0,0];
-  if(k===1){
-  let p=[0,0];
-  let A=getRandomInt(a+1,7);
-  p[0]=getRandomInt(2,4);
-  p[1]=p[0]+A-1;
-  let q=[p[0]**2-getRandomInt(1,p[0]),p[1]**2+getRandomInt(1,p[1])];
-  shiki=`\\sqrt{${q[0]}}\\lt x \\lt \\sqrt{${q[1]}}`;
-  for(let j=0;j<4;j++){
-    let n=(a+j)%4;
-    Q[n]=A+(n-a);
-  }
-    	 solution = `$$ ${p[0]-1}\\lt \\sqrt{${q[0]}}\\lt ${p[0]}，${p[1]}\\lt \\sqrt{${q[1]}}\\lt ${p[1]+1}であるから，$$
-   $$ ${p[0]-1}\\lt x \\lt ${p[1]+1}を満たす整数xの個数を考えればよい。$$
-   $$よって，求める個数は${A}個である。$$`;
+if (j === 2) {
   
-  }
-  if(k===2){
-    let p=[getRandomInt(1,5),0];
-    p[1]=p[0]+getRandomInt(1,4);
-    shiki=`${p[0]}\\lt \\sqrt{x} \\lt ${p[1]}`;
-    let q=[p[0]**2,p[1]**2];
-    let A=q[1]-q[0]-1;
-      for(let j=0;j<4;j++){
-    let n=(a+j)%4;
-    Q[n]=A+(n-a);
-      }
-      let g=getRandomInt(0,1);
-      if(a>0 &&g===1 ){Q[0]=p[1]-p[0]-1;}
-    	 solution = `$$ 辺々を2乗して比較すると$$
-       $$　${q[0]}\\lt x \\lt ${q[1]}　$$
-      $$よって，求める個数は${A}個である。$$`;
-
-  }
-   question = `$$ ${shiki}を満たす整数x の個数は\\fbox{ 1 }個である。$$
-   $$空欄に当てはまる最も適当なものを選択肢1 ～ 4 の中から選び，$$$$番号で答えなさい。$$
+  	let p,q,a,k;
+    k=getRandomInt(1,2);
+    if(k===1){
+	p=[getRandomInt(1,9),0];
+   do{p[1]=getRandomInt(1,9);}while(p[0]===p[1])
+	q=[getRandomInt(-1,1,true),getRandomInt(-1,1,true)]
+     a=[p[0]*2,p[0]**2];
+ for(let j=0;j<4;j++){
+      if(j===0){Q[(A+j)%4]=`(x${teisu(q[0]*p[0])})^2`;}
+      if(j===1){Q[(A+j)%4]=`(x${teisu(-q[0]*p[0])})^2`;}
+      if(j===2){Q[(A+j)%4]=`(x${teisu(-q[0]*p[0])})(x${teisu(q[0]*p[0])})`;}
+      if(j===3){Q[(A+j)%4]=`(x${teisu(q[0]*p[0])})(x${teisu(-p[1]*q[1])})`;}
+     }
+     
+ 	 question = `$$ x^2${moji(q[0]*a[0],`x`)}${teisu(a[1])}を因数分解すると$$
+   $$ \\fbox{ 1 } である。$$
+   $$空欄に当てはまるものを選択肢1 ～ 4 の中から選び，番号で答えなさい。$$
    $$1.　${Q[0]}　　　　$$$$2.　${Q[1]}$$
    $$3.　${Q[2]}　　　　$$$$4.　${Q[3]}$$`;
 
+
+	 solution = `$$x^2${moji(q[0]*a[0],`x`)}${teisu(a[1])}
+   =x^2${moji(q[0],``)}2\\cdot${p[0]}x+${kakko(p[0]*q[0])}^2 $$
+   $$=(x${teisu(p[0]*q[0])})^2$$
+   $$ 因数分解の公式②$$
+   $$x^2 +2ax+a^2=(x+a)^2  $$`;
 
     for (let i = 0; i < 1; i++) {
       let input = document.createElement("input");
@@ -715,14 +523,275 @@ if(I === 10){
       input.id = `input${i}`;
       inputsDiv.appendChild(input);
     }
-
-    correctAnswers = [a+1];
-	
-
-
-    document.getElementById("question").innerHTML = question;
+    
+    correctAnswers = [A+1];
+	  document.getElementById("question").innerHTML = question;
     MathJax.typesetClear();
     MathJax.typeset();
+  }
+    if(k===2){
+	p=[getRandomInt(1,9),0];
+   do{p[1]=getRandomInt(1,9);}while(p[0]===p[1])
+	q=[getRandomInt(-1,1,true),getRandomInt(-1,1,true)]
+     a=[p[0],p[0]];
+      for(let j=0;j<4;j++){
+      if(j===0){Q[(A+j)%4]=`(x${teisu(a[1])})(x${teisu(-a[1])})`;}
+      if(j===1){Q[(A+j)%4]=`(x${teisu(a[1])})^2`;}
+      if(j===2){Q[(A+j)%4]=`(x${teisu(-a[1])})^2`;}
+      if(j===3){Q[(A+j)%4]=`(x${teisu(q[0]*p[0])})(x${teisu(p[1]*q[1])})`;}
+     }
+ 	 question = `$$ x^2${teisu(-1*a[1]**2)}を因数分解すると$$
+   $$\\fbox{ 1 }である。$$
+   $$空欄に当てはまるものを選択肢1 ～ 4 の中から選び，番号で答えなさい。$$
+   $$1.　${Q[0]}　　　　$$$$2.　${Q[1]}$$
+   $$3.　${Q[2]}　　　　$$$$4.　${Q[3]}$$`;
+
+	 solution = `$$x^2${teisu(-1*a[1]**2)}
+   =x^2-${a[1]}^2 $$
+   $$=(x+${a[1]})(x-${a[1]})$$
+   $$ 因数分解の公式③$$
+   $$x^2 -a^2=(x+a)(x-a)  $$`;
+
+    for (let i = 0; i < 1; i++) {
+      let input = document.createElement("input");
+      input.className = "input-box";
+      input.type = "number";
+      input.id = `input${i}`;
+      inputsDiv.appendChild(input);
+    }
+    
+    correctAnswers = [A+1];
+	  document.getElementById("question").innerHTML = question;
+    MathJax.typesetClear();
+    MathJax.typeset();
+  }
+  
+}
+if (j === 3) {
+  
+  	let p,q,a,j;
+    k=getRandomInt(1,2);
+    if(k===1){
+      p=getRandomInt(2,7,true);
+      let q=[getRandomInt(1,9),0];
+      do{q[1]=getRandomInt(1,9);}while(q[0]===q[1])
+      let pm=[getRandomInt(-1,1,true),getRandomInt(-1,1,true),getRandomInt(-1,1,true)];
+      let M=`x${moji(p*pm[0],`y`)}`;
+      let N=`x${moji(-p*pm[0],`y`)}`;
+      if(q[0]>q[1]){
+        q=[q[1],q[0]];
+        pm=[pm[0],pm[2],pm[1]];
+      }
+      let shiki=`(${M})^2${moji(q[0]*pm[1]+q[1]*pm[2],`(${M})`)}${teisu(q[0]*q[1]*pm[1]*pm[2])}`;
+      for(let j=0;j<4;j++){
+      if(j===0){Q[(A+j)%4]=`(${M}${teisu(pm[1]*q[0])})(${M}${teisu(pm[2]*q[1])})`;}
+      if(j===1){Q[(A+j)%4]=`(${M}${teisu(-pm[1]*q[0])})(${M}${teisu(-pm[2]*q[1])})`;}
+      if(j===2){Q[(A+j)%4]=`(${N}${teisu(pm[1]*q[0])})(${N}${teisu(pm[2]*q[1])})`;}
+      if(j===3){Q[(A+j)%4]=`(${N}${teisu(-pm[1]*q[0])})(${N}${teisu(-pm[2]*q[1])})`;}
+     }
+	 	  question = `$$ ${shiki}を因数分解すると$$
+   $$ \\fbox{ 1 }である。$$
+   $$空欄に当てはまるものを選択肢1 ～ 4 の中から選び，番号で答えなさい。$$
+   $$1.　${Q[0]}　　　　$$$$2.　${Q[1]}$$
+   $$3.　${Q[2]}　　　　$$$$4.　${Q[3]}$$`;
+
+	 solution = `$$M=${M}と置くと$$
+  $$M^2${moji(q[0]*pm[1]+q[1]*pm[2],`M`)}${teisu(q[0]*q[1]*pm[1]*pm[2])}$$
+  $$=(M${teisu(pm[1]*q[0])})(M${teisu(pm[2]*q[1])})$$
+  $$=(${M}${teisu(pm[1]*q[0])})(${M}${teisu(pm[2]*q[1])})$$
+   `;
+
+    for (let i = 0; i < 1; i++) {
+      let input = document.createElement("input");
+      input.className = "input-box";
+      input.type = "number";
+      input.id = `input${i}`;
+      inputsDiv.appendChild(input);}
+    
+    correctAnswers = [A+1];
+	  document.getElementById("question").innerHTML = question;
+    MathJax.typesetClear();
+    MathJax.typeset();
+  }
+if(k===2){
+      p=getRandomInt(2,7,true);
+      let q=[getRandomInt(1,9),0];
+      do{q[1]=getRandomInt(1,9);}while(q[0]===q[1])
+      let pm=[-1,1,-1];
+      let M=`x${moji(p*pm[0],`y`)}`;
+      let N=`${keisu(p,`y`)}-x`;
+      if(q[0]>q[1]){
+        q=[q[1],q[0]];
+        pm=[pm[0],pm[2],pm[1]];
+      }
+      let shiki=`(${M})^2${moji(-1*(q[0]*pm[1]+q[1]*pm[2]),`(${N})`)}${teisu(q[0]*q[1]*pm[1]*pm[2])}`;
+      for(let j=0;j<4;j++){
+      if(j===0){Q[(A+j)%4]=`(${M}${teisu(pm[1]*q[0])})(${M}${teisu(pm[2]*q[1])})`;}
+      if(j===1){Q[(A+j)%4]=`(${M}${teisu(-pm[1]*q[0])})(${M}${teisu(-pm[2]*q[1])})`;}
+      if(j===2){Q[(A+j)%4]=`(${N}${teisu(pm[1]*q[0])})(${N}${teisu(pm[2]*q[1])})`;}
+      if(j===3){Q[(A+j)%4]=`(${N}${teisu(pm[1]*q[0])})(${N}${teisu(-pm[2]*q[1])})`;}
+     }
+	 	  question = `$$ ${shiki}=を因数分解すると$$
+   $$\\fbox{ 1 }である。$$
+   $$空欄に当てはまるものを選択肢1 ～ 4 の中から選び，番号で答えなさい。$$
+   $$1.　${Q[0]}　　　　$$$$2.　${Q[1]}$$
+   $$3.　${Q[2]}　　　　$$$$4.　${Q[3]}$$`;
+
+
+	 solution = `$$${shiki}=(${M})^2${moji(q[0]*pm[1]+q[1]*pm[2],`(${M})`)}${teisu(q[0]*q[1]*pm[1]*pm[2])}$$
+   $$より，   M=${M}と置くと$$
+  $$M^2${moji(q[0]*pm[1]+q[1]*pm[2],`M`)}${teisu(q[0]*q[1]*pm[1]*pm[2])}$$
+  $$=(M${teisu(pm[1]*q[0])})(M${teisu(pm[2]*q[1])})$$
+  $$=(${M}${teisu(pm[1]*q[0])})(${M}${teisu(pm[2]*q[1])})$$
+   `;
+
+    for (let i = 0; i < 1; i++) {
+      let input = document.createElement("input");
+      input.className = "input-box";
+      input.type = "number";
+      input.id = `input${i}`;
+      inputsDiv.appendChild(input);}
+    
+    correctAnswers = [A+1];
+	  document.getElementById("question").innerHTML = question;
+    MathJax.typesetClear();
+    MathJax.typeset();
+  }
+
+}
+
+if (j === 4) {
+  
+  	let p,q,a,k;
+    k=getRandomInt(1,3);
+if(k===1){
+      q=[getRandomInt(3,4),0];
+      do{q[1]=getRandomInt(1,9);}while(gcd(q[0],q[1])!==1)
+      let pm=[getRandomInt(-1,1,true),getRandomInt(-1,1,true)]
+      do{
+      p=getRandomInt(1,9,true);}while(gcd(q[0]+1,p*pm[0]+q[1]*pm[1])!==1 ||gcd(q[0]-1,q[1]*pm[1]-p*pm[0])!==1 )
+      ;
+      let C=`${keisu(q[0],`x`)}${teisu(pm[1]*q[1])}`;
+      let B=`x${teisu(p*pm[0])}`;
+      answer=[q[0]-1,q[1]*pm[1]-p*pm[0],q[0]+1,q[1]*pm[1]+p*pm[0]];
+       for(let j=0;j<4;j++){
+      if(j===0){Q[(A+j)%4]=`(${keisu(answer[0],`x`)}${teisu(answer[1])}  )(${keisu(answer[2],`x`)}${teisu(answer[3])}  )`;}
+      if(j===1){Q[(A+j)%4]=`(${keisu(answer[0],`x`)}${teisu(answer[3])}  )(${keisu(answer[2],`x`)}${teisu(answer[1])}  )`;}
+      if(j===2){Q[(A+j)%4]=`(${keisu(answer[0],`x`)}${teisu(-answer[1])}  )(${keisu(answer[2],`x`)}${teisu(-answer[3])}  )`;}
+      if(j===3){Q[(A+j)%4]=`(${keisu(answer[0],`x`)}${teisu(-answer[3])}  )(${keisu(answer[2],`x`)}${teisu(-answer[1])}  )`;}
+     }
+	 	  question = `$$ (${C})^2-(${B})^2を因数分解すると\\fbox{ 1 }である。$$
+   $$空欄に当てはまるものを選択肢1 ～ 4 の中から選び，番号で答えなさい。$$
+   $$1.　${Q[0]}　　　　$$$$2.　${Q[1]}$$
+   $$3.　${Q[2]}　　　　$$$$4.　${Q[3]}$$`;
+
+	 solution = `$$A=${A}，B=${B}と置くと$$
+  $$A^2 -B^2$$
+  $$=(A-B)(A+B)$$
+  $$=\\{(${C})-(${B}) \\}\\{ (${C})+(${B}) \\}$$
+  $$=(${keisu(answer[0],`x`)}${teisu(answer[1])}  )(${keisu(answer[2],`x`)}${teisu(answer[3])}  )$$
+   `;
+
+    for (let i = 0; i < 1; i++) {
+      let input = document.createElement("input");
+      input.className = "input-box";
+      input.type = "number";
+      input.id = `input${i}`;
+      inputsDiv.appendChild(input);}
+    
+    correctAnswers = [A+1];
+	  document.getElementById("question").innerHTML = question;
+    MathJax.typesetClear();
+    MathJax.typeset();
+  }
+if(k===2){
+      p=getRandomInt(-3,3,true);
+      let q=[0,0];
+      do{q[0]=getRandomInt(-5,5,true);
+        q[1]=p-q[0];}while(q[1]===0 || q[1]===q[0])
+      let r=[0,0];
+       do{r[0]=getRandomInt(-5,5,true);}while(r[0]===q[0]||r[0]===q[1]||r[0]*2===p||r[0]===p)
+        r[1]=p-r[0];
+
+      let M=`x^2${moji(p,`x`)}`;
+      answer=[q[0],q[1],r[0],r[1]];
+      answer.sort((a,b)=>Math.abs(a)-Math.abs(b));
+      let shiki=`(${M})^2${moji(q[0]*q[1]+r[0]*r[1],`(${M})`)}${teisu(q[0]*q[1]*r[0]*r[1])}`;
+      for(let j=0;j<4;j++){
+      if(j===0){Q[(A+j)%4]=`(x${teisu(answer[0])})(x${teisu(answer[1])})(x${teisu(answer[2])})(x${teisu(answer[3])})`;}
+      if(j===1){Q[(A+j)%4]=`(x${teisu(-answer[0])})(x${teisu(answer[1])})(x${teisu(-answer[2])})(x${teisu(answer[3])})`;}
+      if(j===2){Q[(A+j)%4]=`(x${teisu(answer[0])})(x${teisu(-answer[1])})(x${teisu(answer[2])})(x${teisu(-answer[3])})`;}
+      if(j===3){Q[(A+j)%4]=`(x${teisu(-answer[0])})(x${teisu(-answer[1])})(x${teisu(-answer[2])})(x${teisu(-answer[3])})`;}
+     }
+	 	  question = `$$ ${shiki}=を因数分解すると\\fbox{ 1 } である。$$
+   $$空欄に当てはまるものを選択肢1 ～ 4 の中から選び，番号で答えなさい。$$
+   $$1.　${Q[0]}　　　　$$$$2.　${Q[1]}$$
+   $$3.　${Q[2]}　　　　$$$$4.　${Q[3]}$$`;
+
+
+	 solution = `$$M=${M}と置くと$$
+  $$M^2${moji(q[0]*q[1]+r[1]*r[0],`M`)}${teisu(q[0]*q[1]*r[1]*r[0])}$$
+  $$=(M${teisu(q[1]*q[0])})(M${teisu(r[0]*r[1])})$$
+  $$=(${M}${teisu(q[1]*q[0])})(${M}${teisu(r[0]*r[1])})$$
+  $$=(x${teisu(q[0])})(x${teisu(q[1])})(x${teisu(r[0])})(x${teisu(r[1])})  $$
+  $$=(x${teisu(answer[0])})(x${teisu(answer[1])})(x${teisu(answer[2])})(x${teisu(answer[3])}) $$
+   `;
+
+    for (let i = 0; i < 1; i++) {
+      let input = document.createElement("input");
+      input.className = "input-box";
+      input.type = "number";
+      input.id = `input${i}`;
+      inputsDiv.appendChild(input);}
+    
+    correctAnswers = [A+1];
+	  document.getElementById("question").innerHTML = question;
+    MathJax.typesetClear();
+    MathJax.typeset();
+  }
+if(k===3){
+      p=getRandomInt(1,3,true);
+      let q=[0,0];
+      do{q[0]=getRandomInt(1,6,true);
+        q[1]=p+q[0];}while(q[1]===0 || q[1]===q[0])
+      
+      let M=`x^2${teisu(-q[0]*q[1])}`;
+      answer=[q[0],q[0],q[1],q[1]];
+      let shiki=`(${M})^2${moji(-1*p**2,`x^2`)}`;
+       for(let j=0;j<4;j++){
+      if(j===0){Q[(A+j)%4]=`(x${teisu(answer[0])})(x${teisu(-answer[1])})(x${teisu(answer[2])})(x${teisu(-answer[3])})`;}
+      if(j===1){Q[(A+j)%4]=`(x${teisu(answer[0])})^2(x${teisu(-answer[2])})^2`;}
+      if(j===2){Q[(A+j)%4]=`(x^2${moji(-p,`x`)}${teisu(q[0]*q[1]*-1)})(x^2${moji(p,`x`)}${teisu(q[0]*q[1]*-1)})`;}
+      if(j===3){Q[(A+j)%4]=`(${keisu(p-1,`x`)}${teisu(-q[0]*q[1])})(${keisu(p+1,`x`)}${teisu(-q[0]*q[1])})`;}
+     }
+	 	  question = `$$ ${shiki}=を因数分解すると\\fbox{ 1 }である。$$
+  $$空欄に当てはまるものを選択肢1 ～ 4 の中から選び，番号で答えなさい。$$
+   $$1.　${Q[0]}　　　　$$$$2.　${Q[1]}$$
+   $$3.　${Q[2]}　　　　$$$$4.　${Q[3]}$$`;
+
+	 solution = `$$M=${M}と置くと$$
+  $$M^2${moji(p**2,`x^2`)}$$
+  $$=(M${moji(-p,`x`)})(M${moji(p,`x`)})$$
+  $$=(${M}${moji(-p,`x`)})(${M}${moji(p,`x`)})$$
+  $$=(x^2${moji(-p,`x`)}${teisu(q[0]*q[1]*-1)})(x^2${moji(p,`x`)}${teisu(q[0]*q[1]*-1)})$$
+  $$=(x${teisu(q[0])})(x${teisu(-q[1])})(x${teisu(-q[0])})(x${teisu(q[1])})  $$
+  $$=(x${teisu(answer[0])})(x${teisu(-answer[1])})(x${teisu(answer[2])})(x${teisu(-answer[3])}) $$
+   `;
+
+    for (let i = 0; i < 1; i++) {
+      let input = document.createElement("input");
+      input.className = "input-box";
+      input.type = "number";
+      input.id = `input${i}`;
+      inputsDiv.appendChild(input);}
+    
+    correctAnswers = [A+1];
+	  document.getElementById("question").innerHTML = question;
+    MathJax.typesetClear();
+    MathJax.typeset();
+  }
+
+}
 }
 if (I === 11) {//次はここから。これで最後。
 document.getElementById("Bquestion").innerHTML = "";
@@ -822,7 +891,7 @@ showSolution();
       else if (mistakeCount <= 6) mistakeRank = "C";
 
       document.getElementById('question').innerHTML = `
-        <h2>平方根H.W.①　結果</h2>
+        <h2>展開・因数分解H.W.②　結果</h2>
         <p>開始時刻: ${startTime.toLocaleTimeString()}</p>
         <p>終了時刻: ${endTime.toLocaleTimeString()}</p>
         <p>かかった時間: ${minutes}分${seconds}秒（評価: ${timeRank}）</p>
