@@ -340,7 +340,7 @@ if (j === 3) {
     if(j===0){Q[A]=`${keisu(a[0],`x^2`)}${moji(a[1]*q,`x`)}${teisu(a[2])}`;}
     if(j===1){Q[(A+j)%4]=`${keisu(a[0],`x^2`)}${moji(q*a[1]/2,`x`)}${teisu(a[2])}`;}
     if(j===2){Q[(A+j)%4]=`${keisu(a[0],`x^2`)}${moji(2*p[1]*q,`x`)}${teisu(a[2])}`;}
-    if(j===3){Q[(A+j)%4]=`${keisu(a[0],`x^2`)}${teisu(q*a[2])}`}
+    if(j===3){Q[(A+j)%4]=`${keisu(a[0],`x^2`)}${teisu(-1*a[2])}`}
   }
  	 question = `$$ (${keisu(p[0],`x`)}${moji(q,`${p[1]}`)})^2を展開すると$$
    $$ \\fbox{ 1 } である。$$
