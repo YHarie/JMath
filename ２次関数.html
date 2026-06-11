@@ -209,12 +209,6 @@ function root(r){return `\\sqrt{${r}}`;}
 function generateQuiz() {//問題生成関数
   document.getElementById('feedback').textContent = '';
   document.getElementById('solution').textContent = '';
-	const canvas = document.getElementById('graphCanvas');
-  if (canvas) {
-    canvas.style.display = 'none'; // まずCanvasを非表示にする
-    const ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, canvas.width, canvas.height); // 前の描画を完全に消去
-  }
   let i = parseInt(document.getElementById('modeSelect1').value);
 
  if ( i === 0) i = getRandomInt(1, 4);//1～4です。
